@@ -44,6 +44,8 @@ class CustomDropdownWidget<T> extends StatelessWidget {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<T>(
               value: value,
+              dropdownColor: Colors.white,
+              borderRadius: BorderRadius.circular(16),
               hint: Text(
                 hint,
                 style: GoogleFonts.outfit(

@@ -23,6 +23,8 @@ class SelectRouterFormSection extends StatelessWidget {
     'Linksys': ['WRT1900AC', 'EA7500', 'Velop Mesh', 'MR9000'],
     'D-Link': ['DIR-882', 'DIR-842', 'Covr Mesh', 'DIR-2150'],
     'Xiaomi': ['Mi Router 4A', 'Mi AIoT AX3600', 'Redmi AX6', 'Mi Router 4C'],
+    'Huawei': ['WiFi AX3', 'WS5200', 'WiFi Mesh 3', 'AX2'],
+    'Mikrotik': ['hAP ac2', 'hAP ax2', 'RB5009', 'Chateau LTE12'],
   };
 
   static const List<String> customFirmwares = [
@@ -80,9 +82,11 @@ class SelectRouterFormSection extends StatelessWidget {
                       child: Text(m),
                     );
                   }).toList(),
-                  onChanged: brand != null ? (newModel) {
-                    selectedModel.value = newModel;
-                  } : null,
+                  onChanged: brand != null
+                      ? (newModel) {
+                          selectedModel.value = newModel;
+                        }
+                      : null,
                 );
               },
             );

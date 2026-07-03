@@ -11,9 +11,9 @@ class SelectRouterAppbarSection extends StatelessWidget implements PreferredSize
       elevation: 0,
       leading: IconButton(
         icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
+          Icons.arrow_back_rounded,
           color: Color(0xFF1B1B1E),
-          size: 18,
+          size: 22,
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
