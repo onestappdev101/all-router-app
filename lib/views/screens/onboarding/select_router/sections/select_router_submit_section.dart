@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:onest_all_router_app/views/screens/onboarding/establish_connection/establish_connection_screen.dart';
 
 class SelectRouterSubmitSection extends StatelessWidget {
   final ValueNotifier<String?> selectedBrand;
@@ -28,13 +29,20 @@ class SelectRouterSubmitSection extends StatelessWidget {
         return ElevatedButton(
           onPressed: isEnabled
               ? () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Configured: ${selectedBrand.value} ${selectedModel.value} (${firmwareType.value == 'Custom' ? customFirmware.value : 'Stock'} Firmware)',
-                        style: GoogleFonts.outfit(),
+                  final brandVal = selectedBrand.value!;
+                  final modelVal = selectedModel.value!;
+                  final firmwareVal = firmwareType.value == 'Custom'
+                      ? customFirmware.value!
+                      : 'Stock';
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EstablishConnectionScreen(
+                        brand: brandVal,
+                        model: modelVal,
+                        firmware: firmwareVal,
                       ),
-                      backgroundColor: const Color(0xFF2D29D4),
                     ),
                   );
                 }
