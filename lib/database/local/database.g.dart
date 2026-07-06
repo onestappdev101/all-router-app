@@ -51,6 +51,15 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _logoMeta = const VerificationMeta('logo');
+  @override
+  late final GeneratedColumn<String> logo = GeneratedColumn<String>(
+    'logo',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -90,6 +99,7 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
     name,
     slug,
     website,
+    logo,
     notes,
     createdAt,
     updatedAt,
@@ -129,6 +139,12 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
       context.handle(
         _websiteMeta,
         website.isAcceptableOrUnknown(data['website']!, _websiteMeta),
+      );
+    }
+    if (data.containsKey('logo')) {
+      context.handle(
+        _logoMeta,
+        logo.isAcceptableOrUnknown(data['logo']!, _logoMeta),
       );
     }
     if (data.containsKey('notes')) {
@@ -174,6 +190,10 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
         DriftSqlType.string,
         data['${effectivePrefix}website'],
       ),
+      logo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}logo'],
+      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -200,6 +220,7 @@ class Brand extends DataClass implements Insertable<Brand> {
   final String name;
   final String slug;
   final String? website;
+  final String? logo;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -208,6 +229,7 @@ class Brand extends DataClass implements Insertable<Brand> {
     required this.name,
     required this.slug,
     this.website,
+    this.logo,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
@@ -220,6 +242,9 @@ class Brand extends DataClass implements Insertable<Brand> {
     map['slug'] = Variable<String>(slug);
     if (!nullToAbsent || website != null) {
       map['website'] = Variable<String>(website);
+    }
+    if (!nullToAbsent || logo != null) {
+      map['logo'] = Variable<String>(logo);
     }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -237,6 +262,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       website: website == null && nullToAbsent
           ? const Value.absent()
           : Value(website),
+      logo: logo == null && nullToAbsent ? const Value.absent() : Value(logo),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -255,6 +281,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       name: serializer.fromJson<String>(json['name']),
       slug: serializer.fromJson<String>(json['slug']),
       website: serializer.fromJson<String?>(json['website']),
+      logo: serializer.fromJson<String?>(json['logo']),
       notes: serializer.fromJson<String?>(json['notes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -268,6 +295,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       'name': serializer.toJson<String>(name),
       'slug': serializer.toJson<String>(slug),
       'website': serializer.toJson<String?>(website),
+      'logo': serializer.toJson<String?>(logo),
       'notes': serializer.toJson<String?>(notes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -279,6 +307,7 @@ class Brand extends DataClass implements Insertable<Brand> {
     String? name,
     String? slug,
     Value<String?> website = const Value.absent(),
+    Value<String?> logo = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -287,6 +316,7 @@ class Brand extends DataClass implements Insertable<Brand> {
     name: name ?? this.name,
     slug: slug ?? this.slug,
     website: website.present ? website.value : this.website,
+    logo: logo.present ? logo.value : this.logo,
     notes: notes.present ? notes.value : this.notes,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -297,6 +327,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       name: data.name.present ? data.name.value : this.name,
       slug: data.slug.present ? data.slug.value : this.slug,
       website: data.website.present ? data.website.value : this.website,
+      logo: data.logo.present ? data.logo.value : this.logo,
       notes: data.notes.present ? data.notes.value : this.notes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -310,6 +341,7 @@ class Brand extends DataClass implements Insertable<Brand> {
           ..write('name: $name, ')
           ..write('slug: $slug, ')
           ..write('website: $website, ')
+          ..write('logo: $logo, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -319,7 +351,7 @@ class Brand extends DataClass implements Insertable<Brand> {
 
   @override
   int get hashCode =>
-      Object.hash(id, name, slug, website, notes, createdAt, updatedAt);
+      Object.hash(id, name, slug, website, logo, notes, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -328,6 +360,7 @@ class Brand extends DataClass implements Insertable<Brand> {
           other.name == this.name &&
           other.slug == this.slug &&
           other.website == this.website &&
+          other.logo == this.logo &&
           other.notes == this.notes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -338,6 +371,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
   final Value<String> name;
   final Value<String> slug;
   final Value<String?> website;
+  final Value<String?> logo;
   final Value<String?> notes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -346,6 +380,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     this.name = const Value.absent(),
     this.slug = const Value.absent(),
     this.website = const Value.absent(),
+    this.logo = const Value.absent(),
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -355,6 +390,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     required String name,
     required String slug,
     this.website = const Value.absent(),
+    this.logo = const Value.absent(),
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -365,6 +401,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     Expression<String>? name,
     Expression<String>? slug,
     Expression<String>? website,
+    Expression<String>? logo,
     Expression<String>? notes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -374,6 +411,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
       if (name != null) 'name': name,
       if (slug != null) 'slug': slug,
       if (website != null) 'website': website,
+      if (logo != null) 'logo': logo,
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -385,6 +423,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     Value<String>? name,
     Value<String>? slug,
     Value<String?>? website,
+    Value<String?>? logo,
     Value<String?>? notes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -394,6 +433,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
       name: name ?? this.name,
       slug: slug ?? this.slug,
       website: website ?? this.website,
+      logo: logo ?? this.logo,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -415,6 +455,9 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     if (website.present) {
       map['website'] = Variable<String>(website.value);
     }
+    if (logo.present) {
+      map['logo'] = Variable<String>(logo.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -434,6 +477,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
           ..write('name: $name, ')
           ..write('slug: $slug, ')
           ..write('website: $website, ')
+          ..write('logo: $logo, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -7277,6 +7321,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_version_rules_lookup',
     'CREATE INDEX idx_version_rules_lookup ON version_rules (api_profile_id, min_version_sort, max_version_sort)',
   );
+  late final BrandsDao brandsDao = BrandsDao(this as AppDatabase);
+  late final RouterModelsDao routerModelsDao = RouterModelsDao(
+    this as AppDatabase,
+  );
+  late final FirmwareTypesDao firmwareTypesDao = FirmwareTypesDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7311,6 +7362,7 @@ typedef $$BrandsTableCreateCompanionBuilder =
       required String name,
       required String slug,
       Value<String?> website,
+      Value<String?> logo,
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -7321,6 +7373,7 @@ typedef $$BrandsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String> slug,
       Value<String?> website,
+      Value<String?> logo,
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -7375,6 +7428,11 @@ class $$BrandsTableFilterComposer
 
   ColumnFilters<String> get website => $composableBuilder(
     column: $table.website,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get logo => $composableBuilder(
+    column: $table.logo,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7448,6 +7506,11 @@ class $$BrandsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get logo => $composableBuilder(
+    column: $table.logo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
@@ -7484,6 +7547,9 @@ class $$BrandsTableAnnotationComposer
 
   GeneratedColumn<String> get website =>
       $composableBuilder(column: $table.website, builder: (column) => column);
+
+  GeneratedColumn<String> get logo =>
+      $composableBuilder(column: $table.logo, builder: (column) => column);
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -7552,6 +7618,7 @@ class $$BrandsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String> slug = const Value.absent(),
                 Value<String?> website = const Value.absent(),
+                Value<String?> logo = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -7560,6 +7627,7 @@ class $$BrandsTableTableManager
                 name: name,
                 slug: slug,
                 website: website,
+                logo: logo,
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -7570,6 +7638,7 @@ class $$BrandsTableTableManager
                 required String name,
                 required String slug,
                 Value<String?> website = const Value.absent(),
+                Value<String?> logo = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -7578,6 +7647,7 @@ class $$BrandsTableTableManager
                 name: name,
                 slug: slug,
                 website: website,
+                logo: logo,
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
