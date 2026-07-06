@@ -63,6 +63,8 @@ class _EstablishConnectionScreenState extends State<EstablishConnectionScreen> {
       _networkInfo = null;
     });
 
+    final startTime = DateTime.now();
+
     Map<String, String?>? infoResult;
     try {
       infoResult = await _fetchNetworkInfo().timeout(const Duration(seconds: 6));
@@ -71,14 +73,20 @@ class _EstablishConnectionScreenState extends State<EstablishConnectionScreen> {
     }
 
     final connectivityResult = await Connectivity().checkConnectivity();
-    final isConnected = connectivityResult.any((result) => result != ConnectivityResult.none);
+    final isConnected = connectivityResult.contains(ConnectivityResult.wifi);
+
+    final elapsedTime = DateTime.now().difference(startTime);
+    final remainingDelay = const Duration(seconds: 1) - elapsedTime;
+    if (remainingDelay > Duration.zero) {
+      await Future.delayed(remainingDelay);
+    }
 
     if (!mounted) return;
 
     if (!isConnected) {
       setState(() {
         _isLoading = false;
-        _errorMessage = "You are not connected to any network. Please connect to a network to proceed.";
+        _errorMessage = "You are not connected to a Wi-Fi network. Please connect to your router's Wi-Fi network to proceed.";
       });
       _showNoConnectionDialog();
     } else {
@@ -115,7 +123,7 @@ class _EstablishConnectionScreenState extends State<EstablishConnectionScreen> {
             ),
           ),
           content: Text(
-            'Please connect to a network to get the router information.',
+            'Please connect to a Wi-Fi network to get the router information.',
             style: GoogleFonts.outfit(
               color: const Color(0xFF5E6272),
               fontSize: 15,
