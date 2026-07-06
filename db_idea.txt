@@ -1,0 +1,4 @@
+i want to make router configuration mobile application .so for storing
+the router information i want to create a local db
+using drift/sqlite by router brand,firmware type(stock , custom),
+firmware version,version endpoint,version communication protocol
