@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 /// Thrown when the router rejects the login (matches httpAutErrorArray codes).
 class RouterLoginException implements Exception {
@@ -64,12 +64,17 @@ class RouterStatusService {
   final String baseUrl; // e.g. "http://192.168.1.1"
   final String username;
   final String password;
+  final Dio _dio;
 
   RouterStatusService({
     required this.baseUrl,
     required this.username,
     required this.password,
-  });
+    Dio? dio,
+  }) : _dio = dio ?? Dio(BaseOptions(
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        ));
 
   /// Logs in and returns the session token (e.g. "JOOVCEAANSWXBIPA").
   Future<String> login() async {
@@ -86,102 +91,106 @@ class RouterStatusService {
     final escapedAuth =
     authString.replaceAll(' ', '%20').replaceAll('=', '%3D');
 
-    // Step 4: send the GET with the Authorization cookie attached,
-    // exactly like document.cookie = "Authorization=...；path=/" would.
-    final uri = Uri.parse('$baseUrl/userRpm/LoginRpm.htm?Save=Save');
-    final response = await http.get(
-      uri,
-      headers: {
-        'Cookie': 'Authorization=$escapedAuth',
-      },
-    );
+    try {
+      // Step 4: send the GET with the Authorization cookie attached,
+      // exactly like document.cookie = "Authorization=...；path=/" would.
+      final response = await _dio.get<String>(
+        '$baseUrl/userRpm/LoginRpm.htm?Save=Save',
+        options: Options(
+          headers: {
+            'Cookie': 'Authorization=$escapedAuth',
+          },
+        ),
+      );
 
-    final body = response.body;
+      final body = response.data ?? '';
 
-    // Check for httpAutErrorArray — present when login is re-shown due to an error.
-    final errMatch =
-    RegExp(r'httpAutErrorArray\s*=\s*new Array\(\s*(\d+)').firstMatch(body);
-    if (errMatch != null) {
-      final code = errMatch.group(1);
-      const messages = {
-        '0': 'Another administrator is already logged in.',
-        '1': 'Too many failed attempts — locked out, try again in 2 hours.',
-        '2': 'Username or password is incorrect.',
-      };
-      if (code != '3') {
-        throw RouterLoginException(messages[code] ?? 'Login rejected (code $code).');
+      // Check for httpAutErrorArray — present when login is re-shown due to an error.
+      final errMatch =
+      RegExp(r'httpAutErrorArray\s*=\s*new Array\(\s*(\d+)').firstMatch(body);
+      if (errMatch != null) {
+        final code = errMatch.group(1);
+        const messages = {
+          '0': 'Another administrator is already logged in.',
+          '1': 'Too many failed attempts — locked out, try again in 2 hours.',
+          '2': 'Username or password is incorrect.',
+        };
+        if (code != '3') {
+          throw RouterLoginException(messages[code] ?? 'Login rejected (code $code).');
+        }
       }
-    }
 
-    // Success case: response body has a redirect like
-    // location.href="/JOOVCEAANSWXBIPA/userRpm/Index.htm"
-    final tokenMatch = RegExp(r'/([A-Z0-9]{16})/userRpm').firstMatch(body);
-    if (tokenMatch == null) {
-      throw RouterLoginException(
-          'Login response had no session token and no recognizable error. '
-              'Raw body: $body');
-    }
+      // Success case: response body has a redirect like
+      // location.href="/JOOVCEAANSWXBIPA/userRpm/Index.htm"
+      final tokenMatch = RegExp(r'/([A-Z0-9]{16})/userRpm').firstMatch(body);
+      if (tokenMatch == null) {
+        throw RouterLoginException(
+            'Login response had no session token and no recognizable error. '
+                'Raw body: $body');
+      }
 
-    return tokenMatch.group(1)!;
+      return tokenMatch.group(1)!;
+    } on DioException catch (e) {
+      throw RouterLoginException('Network error during login: ${e.message}');
+    }
   }
 
   /// Fetches and parses StatusRpm.htm using a session token from [login].
   Future<RouterStatus> fetchStatus(String sessionToken) async {
-    final uri =
-    Uri.parse('$baseUrl/$sessionToken/userRpm/StatusRpm.htm');
-    final response = await http.get(uri);
+    try {
+      final response = await _dio.get<String>(
+        '$baseUrl/$sessionToken/userRpm/StatusRpm.htm',
+      );
 
-    if (response.statusCode != 200) {
-      throw RouterLoginException(
-          'Status page returned ${response.statusCode} — session token may have expired; try logging in again.');
+      final body = response.data ?? '';
+
+      List<String>? extractArray(String varName) {
+        final re =
+        RegExp('var\\s+$varName\\s*=\\s*new Array\\(([\\s\\S]*?)\\);');
+        final m = re.firstMatch(body);
+        if (m == null) return null;
+        return m
+            .group(1)!
+            .split(',')
+            .map((v) => v.trim())
+            .where((v) => v.isNotEmpty)
+            .map((v) => v.replaceAll(RegExp(r'^"|"$'), ''))
+            .toList();
+      }
+
+      final statusPara = extractArray('statusPara');
+      final lanPara = extractArray('lanPara');
+      final wlanPara = extractArray('wlanPara');
+      final wanPara = extractArray('wanPara');
+      final statistList = extractArray('statistList');
+
+      if (statusPara == null || lanPara == null || wlanPara == null ||
+          wanPara == null || statistList == null) {
+        throw RouterLoginException(
+            'Could not find expected data arrays in StatusRpm.htm — the page format may differ from what was captured.');
+      }
+
+      return RouterStatus(
+        firmwareVersion: statusPara[5],
+        hardwareVersion: statusPara[6],
+        lanMac: lanPara[0],
+        lanIp: lanPara[1],
+        lanSubnetMask: lanPara[2],
+        ssid: wlanPara[1],
+        wirelessMac: wlanPara[4],
+        wanMac: wanPara[1],
+        wanIp: wanPara[2],
+        wanSubnetMask: wanPara[4],
+        defaultGateway: wanPara[7],
+        dnsServers: wanPara[11],
+        receivedBytes: statistList[0],
+        sentBytes: statistList[1],
+        receivedPackets: statistList[2],
+        sentPackets: statistList[3],
+      );
+    } on DioException catch (e) {
+      throw RouterLoginException('Network error while fetching status: ${e.message}');
     }
-
-    final body = response.body;
-
-    List<String>? extractArray(String varName) {
-      final re =
-      RegExp('var\\s+$varName\\s*=\\s*new Array\\(([\\s\\S]*?)\\);');
-      final m = re.firstMatch(body);
-      if (m == null) return null;
-      return m
-          .group(1)!
-          .split(',')
-          .map((v) => v.trim())
-          .where((v) => v.isNotEmpty)
-          .map((v) => v.replaceAll(RegExp(r'^"|"$'), ''))
-          .toList();
-    }
-
-    final statusPara = extractArray('statusPara');
-    final lanPara = extractArray('lanPara');
-    final wlanPara = extractArray('wlanPara');
-    final wanPara = extractArray('wanPara');
-    final statistList = extractArray('statistList');
-
-    if (statusPara == null || lanPara == null || wlanPara == null ||
-        wanPara == null || statistList == null) {
-      throw RouterLoginException(
-          'Could not find expected data arrays in StatusRpm.htm — the page format may differ from what was captured.');
-    }
-
-    return RouterStatus(
-      firmwareVersion: statusPara[5],
-      hardwareVersion: statusPara[6],
-      lanMac: lanPara[0],
-      lanIp: lanPara[1],
-      lanSubnetMask: lanPara[2],
-      ssid: wlanPara[1],
-      wirelessMac: wlanPara[4],
-      wanMac: wanPara[1],
-      wanIp: wanPara[2],
-      wanSubnetMask: wanPara[4],
-      defaultGateway: wanPara[7],
-      dnsServers: wanPara[11],
-      receivedBytes: statistList[0],
-      sentBytes: statistList[1],
-      receivedPackets: statistList[2],
-      sentPackets: statistList[3],
-    );
   }
 
   /// Convenience: log in and fetch status in one call.
@@ -190,18 +199,3 @@ class RouterStatusService {
     return fetchStatus(token);
   }
 }
-
-// --- Example usage in a widget ---
-//
-// final service = RouterStatusService(
-//   baseUrl: 'http://192.168.1.1',
-//   username: 'admin',
-//   password: 'admin',
-// );
-//
-// try {
-//   final status = await service.getStatus();
-//   print(status);
-// } on RouterLoginException catch (e) {
-//   print('Login/status failed: ${e.message}');
-// }

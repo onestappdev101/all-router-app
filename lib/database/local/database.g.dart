@@ -69,6 +69,15 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _dnsMeta = const VerificationMeta('dns');
+  @override
+  late final GeneratedColumn<String> dns = GeneratedColumn<String>(
+    'dns',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -101,6 +110,7 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
     website,
     logo,
     notes,
+    dns,
     createdAt,
     updatedAt,
   ];
@@ -153,6 +163,12 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('dns')) {
+      context.handle(
+        _dnsMeta,
+        dns.isAcceptableOrUnknown(data['dns']!, _dnsMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -198,6 +214,10 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      dns: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dns'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -222,6 +242,7 @@ class Brand extends DataClass implements Insertable<Brand> {
   final String? website;
   final String? logo;
   final String? notes;
+  final String? dns;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Brand({
@@ -231,6 +252,7 @@ class Brand extends DataClass implements Insertable<Brand> {
     this.website,
     this.logo,
     this.notes,
+    this.dns,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -249,6 +271,9 @@ class Brand extends DataClass implements Insertable<Brand> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || dns != null) {
+      map['dns'] = Variable<String>(dns);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -266,6 +291,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      dns: dns == null && nullToAbsent ? const Value.absent() : Value(dns),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -283,6 +309,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       website: serializer.fromJson<String?>(json['website']),
       logo: serializer.fromJson<String?>(json['logo']),
       notes: serializer.fromJson<String?>(json['notes']),
+      dns: serializer.fromJson<String?>(json['dns']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -297,6 +324,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       'website': serializer.toJson<String?>(website),
       'logo': serializer.toJson<String?>(logo),
       'notes': serializer.toJson<String?>(notes),
+      'dns': serializer.toJson<String?>(dns),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -309,6 +337,7 @@ class Brand extends DataClass implements Insertable<Brand> {
     Value<String?> website = const Value.absent(),
     Value<String?> logo = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> dns = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Brand(
@@ -318,6 +347,7 @@ class Brand extends DataClass implements Insertable<Brand> {
     website: website.present ? website.value : this.website,
     logo: logo.present ? logo.value : this.logo,
     notes: notes.present ? notes.value : this.notes,
+    dns: dns.present ? dns.value : this.dns,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -329,6 +359,7 @@ class Brand extends DataClass implements Insertable<Brand> {
       website: data.website.present ? data.website.value : this.website,
       logo: data.logo.present ? data.logo.value : this.logo,
       notes: data.notes.present ? data.notes.value : this.notes,
+      dns: data.dns.present ? data.dns.value : this.dns,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -343,6 +374,7 @@ class Brand extends DataClass implements Insertable<Brand> {
           ..write('website: $website, ')
           ..write('logo: $logo, ')
           ..write('notes: $notes, ')
+          ..write('dns: $dns, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -350,8 +382,17 @@ class Brand extends DataClass implements Insertable<Brand> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, slug, website, logo, notes, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    slug,
+    website,
+    logo,
+    notes,
+    dns,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -362,6 +403,7 @@ class Brand extends DataClass implements Insertable<Brand> {
           other.website == this.website &&
           other.logo == this.logo &&
           other.notes == this.notes &&
+          other.dns == this.dns &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -373,6 +415,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
   final Value<String?> website;
   final Value<String?> logo;
   final Value<String?> notes;
+  final Value<String?> dns;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const BrandsCompanion({
@@ -382,6 +425,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     this.website = const Value.absent(),
     this.logo = const Value.absent(),
     this.notes = const Value.absent(),
+    this.dns = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -392,6 +436,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     this.website = const Value.absent(),
     this.logo = const Value.absent(),
     this.notes = const Value.absent(),
+    this.dns = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
@@ -403,6 +448,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     Expression<String>? website,
     Expression<String>? logo,
     Expression<String>? notes,
+    Expression<String>? dns,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -413,6 +459,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
       if (website != null) 'website': website,
       if (logo != null) 'logo': logo,
       if (notes != null) 'notes': notes,
+      if (dns != null) 'dns': dns,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -425,6 +472,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     Value<String?>? website,
     Value<String?>? logo,
     Value<String?>? notes,
+    Value<String?>? dns,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -435,6 +483,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
       website: website ?? this.website,
       logo: logo ?? this.logo,
       notes: notes ?? this.notes,
+      dns: dns ?? this.dns,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -461,6 +510,9 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (dns.present) {
+      map['dns'] = Variable<String>(dns.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -479,6 +531,7 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
           ..write('website: $website, ')
           ..write('logo: $logo, ')
           ..write('notes: $notes, ')
+          ..write('dns: $dns, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -7364,6 +7417,7 @@ typedef $$BrandsTableCreateCompanionBuilder =
       Value<String?> website,
       Value<String?> logo,
       Value<String?> notes,
+      Value<String?> dns,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -7375,6 +7429,7 @@ typedef $$BrandsTableUpdateCompanionBuilder =
       Value<String?> website,
       Value<String?> logo,
       Value<String?> notes,
+      Value<String?> dns,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -7438,6 +7493,11 @@ class $$BrandsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dns => $composableBuilder(
+    column: $table.dns,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7516,6 +7576,11 @@ class $$BrandsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get dns => $composableBuilder(
+    column: $table.dns,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -7553,6 +7618,9 @@ class $$BrandsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get dns =>
+      $composableBuilder(column: $table.dns, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -7620,6 +7688,7 @@ class $$BrandsTableTableManager
                 Value<String?> website = const Value.absent(),
                 Value<String?> logo = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> dns = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => BrandsCompanion(
@@ -7629,6 +7698,7 @@ class $$BrandsTableTableManager
                 website: website,
                 logo: logo,
                 notes: notes,
+                dns: dns,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -7640,6 +7710,7 @@ class $$BrandsTableTableManager
                 Value<String?> website = const Value.absent(),
                 Value<String?> logo = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> dns = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => BrandsCompanion.insert(
@@ -7649,6 +7720,7 @@ class $$BrandsTableTableManager
                 website: website,
                 logo: logo,
                 notes: notes,
+                dns: dns,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

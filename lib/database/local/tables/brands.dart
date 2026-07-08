@@ -7,6 +7,7 @@ class Brands extends Table {
   TextColumn get website => text().nullable()();
   TextColumn get logo => text().nullable()();
   TextColumn get notes => text().nullable()();
+  TextColumn get dns => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

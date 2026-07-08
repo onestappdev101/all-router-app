@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
 
   // Bump this and add a migration step below whenever you change a table.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -62,6 +62,10 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (Migrator m, int from, int to) async {
           if (from < 2) {
             await m.addColumn(brands, brands.logo);
+          }
+          if (from < 3) {
+            await m.addColumn(routerModels, routerModels.modelNumber);
+            await m.addColumn(brands, brands.dns);
           }
         },
         beforeOpen: (details) async {
