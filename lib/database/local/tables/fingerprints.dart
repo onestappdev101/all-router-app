@@ -1,15 +1,15 @@
 import 'package:drift/drift.dart';
 
 import 'firmwares.dart';
-import 'router_models.dart';
+import 'brands.dart';
 
-@TableIndex(name: 'idx_fingerprints_router_model', columns: {#routerModelId})
+@TableIndex(name: 'idx_fingerprints_brand', columns: {#brandId})
 @TableIndex(name: 'idx_fingerprints_firmware', columns: {#firmwareId})
 @TableIndex(name: 'idx_fingerprints_match_type', columns: {#matchType})
 class Fingerprints extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get routerModelId =>
-      integer().nullable().references(RouterModels, #id)();
+  IntColumn get brandId =>
+      integer().nullable().references(Brands, #id)();
   IntColumn get firmwareId =>
       integer().nullable().references(Firmwares, #id)();
   // title, favicon_hash, cookie, server, header, html, redirect, api_response

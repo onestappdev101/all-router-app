@@ -8,17 +8,21 @@ import 'package:onest_all_router_app/database/local/database.dart';
 import 'package:onest_all_router_app/viewmodels/login_viewmodel.dart';
 import 'package:onest_all_router_app/views/screens/onboarding/are_you_conntected_with_router/connect_router_screen.dart';
 
+// Keep a global reference to the StorageServerDriver to prevent it from being garbage collected
+StorageServerDriver? inspectorDriver;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kDebugMode) {
     print('Starting Storage Inspector...');
-    final driver = StorageServerDriver(
+    inspectorDriver = StorageServerDriver(
       bundleId: 'com.example.onest_all_router_app',
       icon: 'flutter',
+      port: 49152,
     );
     
-    driver.addSQLServer(
+    inspectorDriver!.addSQLServer(
       DriftSQLDatabaseServer(
         id: 'router_hub_db_id',
         name: 'Router Hub Database',
@@ -26,12 +30,17 @@ void main() async {
       ),
     );
     
-    await driver.start();
-    print('Storage Inspector Started');
+    inspectorDriver!.start().then((_) {
+      print('Storage Inspector Started');
+    }).catchError((e) {
+      print('Failed to start Storage Inspector: $e');
+    });
   }
   
-  // Run the database debug method to force open the connection and print status
-  await AppDatabase.instance.debugDatabase();
+  // Run the database debug method in the background without blocking the UI
+  AppDatabase.instance.debugDatabase().catchError((e) {
+    print('Database debug failed: $e');
+  });
 
   runApp(
     ChangeNotifierProvider(

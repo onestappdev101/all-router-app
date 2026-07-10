@@ -5,14 +5,12 @@ import 'package:onest_all_router_app/views/screens/onboarding/select_router/widg
 
 class SelectRouterFormSection extends StatelessWidget {
   final ValueNotifier<String?> selectedBrand;
-  final ValueNotifier<String?> selectedModel;
   final ValueNotifier<String> firmwareType;
   final ValueNotifier<String?> customFirmware;
 
   const SelectRouterFormSection({
     super.key,
     required this.selectedBrand,
-    required this.selectedModel,
     required this.firmwareType,
     required this.customFirmware,
   });
@@ -42,50 +40,11 @@ class SelectRouterFormSection extends StatelessWidget {
                       ? null
                       : (newBrand) {
                           selectedBrand.value = newBrand;
-                          selectedModel.value = null; // Reset model when brand changes
                         },
                 );
               },
             ),
-            const SizedBox(height: 20),
 
-            // Model Dropdown
-            ValueListenableBuilder<String?>(
-              valueListenable: selectedBrand,
-              builder: (context, brandName, child) {
-                final modelsStream = brandName != null
-                    ? db.routerModelsDao.watchModelsForBrandSlug(brandName.toLowerCase().replaceAll(' ', '-'))
-                    : const Stream<List<RouterModel>>.empty();
-
-                return StreamBuilder<List<RouterModel>>(
-                  stream: modelsStream,
-                  builder: (context, modelsSnapshot) {
-                    final models = modelsSnapshot.data ?? [];
-                    return ValueListenableBuilder<String?>(
-                      valueListenable: selectedModel,
-                      builder: (context, modelName, child) {
-                        return CustomDropdownWidget<String>(
-                          label: 'Router Model',
-                          value: modelName,
-                          hint: brandName != null
-                              ? (modelsSnapshot.connectionState == ConnectionState.waiting
-                                  ? 'Loading models...'
-                                  : 'Select model')
-                              : 'Select a brand first',
-                          items: models.map((m) => m.name).toList(),
-                          onChanged: brandName != null && models.isNotEmpty
-                              ? (newModel) {
-                                  selectedModel.value = newModel;
-                                }
-                              : null,
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-            const SizedBox(height: 20),
 
             // Firmware Type Segment Control
             ValueListenableBuilder<String>(
@@ -151,3 +110,4 @@ class SelectRouterFormSection extends StatelessWidget {
     );
   }
 }
+

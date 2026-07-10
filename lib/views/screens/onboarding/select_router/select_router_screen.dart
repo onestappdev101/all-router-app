@@ -9,7 +9,6 @@ class SelectRouterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedBrand = ValueNotifier<String?>(null);
-    final selectedModel = ValueNotifier<String?>(null);
     final firmwareType = ValueNotifier<String>('Stock');
     final customFirmware = ValueNotifier<String?>(null);
 
@@ -24,7 +23,6 @@ class SelectRouterScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
                 child: SelectRouterFormSection(
                   selectedBrand: selectedBrand,
-                  selectedModel: selectedModel,
                   firmwareType: firmwareType,
                   customFirmware: customFirmware,
                 ),
@@ -37,7 +35,6 @@ class SelectRouterScreen extends StatelessWidget {
                   Expanded(
                     child: SelectRouterSubmitSection(
                       selectedBrand: selectedBrand,
-                      selectedModel: selectedModel,
                       firmwareType: firmwareType,
                       customFirmware: customFirmware,
                     ),

@@ -2,12 +2,12 @@ import 'package:drift/drift.dart';
 
 import 'api_profiles.dart';
 import 'firmware_types.dart';
-import 'router_models.dart';
+import 'brands.dart';
 
 @TableIndex(name: 'idx_firmwares_version_sort', columns: {#versionSort})
 class Firmwares extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get routerModelId => integer().references(RouterModels, #id)();
+  IntColumn get brandId => integer().references(Brands, #id)();
   IntColumn get firmwareTypeId => integer().references(FirmwareTypes, #id)();
   IntColumn get apiProfileId => integer().references(ApiProfiles, #id)();
 
@@ -27,6 +27,6 @@ class Firmwares extends Table {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-        {routerModelId, firmwareTypeId, version, buildNumber},
+        {brandId, firmwareTypeId, version, buildNumber},
       ];
 }

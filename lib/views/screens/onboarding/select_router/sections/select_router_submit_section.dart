@@ -4,14 +4,12 @@ import 'package:onest_all_router_app/views/screens/onboarding/establish_connecti
 
 class SelectRouterSubmitSection extends StatelessWidget {
   final ValueNotifier<String?> selectedBrand;
-  final ValueNotifier<String?> selectedModel;
   final ValueNotifier<String> firmwareType;
   final ValueNotifier<String?> customFirmware;
 
   const SelectRouterSubmitSection({
     super.key,
     required this.selectedBrand,
-    required this.selectedModel,
     required this.firmwareType,
     required this.customFirmware,
   });
@@ -19,18 +17,17 @@ class SelectRouterSubmitSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([selectedBrand, selectedModel, firmwareType, customFirmware]),
+      animation: Listenable.merge([selectedBrand, firmwareType, customFirmware]),
       builder: (context, child) {
         final isBrandSelected = selectedBrand.value != null;
-        final isModelSelected = selectedModel.value != null;
         final isFirmwareValid = firmwareType.value == 'Stock' || customFirmware.value != null;
-        final isEnabled = isBrandSelected && isModelSelected && isFirmwareValid;
+        final isEnabled = isBrandSelected && isFirmwareValid;
 
         return ElevatedButton(
           onPressed: isEnabled
               ? () {
                   final brandVal = selectedBrand.value!;
-                  final modelVal = selectedModel.value!;
+                  const modelVal = 'Generic Model';
                   final firmwareVal = firmwareType.value == 'Custom'
                       ? customFirmware.value!
                       : 'Stock';

@@ -30,16 +30,6 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _slugMeta = const VerificationMeta('slug');
-  @override
-  late final GeneratedColumn<String> slug = GeneratedColumn<String>(
-    'slug',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
-  );
   static const VerificationMeta _websiteMeta = const VerificationMeta(
     'website',
   );
@@ -106,7 +96,6 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
   List<GeneratedColumn> get $columns => [
     id,
     name,
-    slug,
     website,
     logo,
     notes,
@@ -136,14 +125,6 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
-    }
-    if (data.containsKey('slug')) {
-      context.handle(
-        _slugMeta,
-        slug.isAcceptableOrUnknown(data['slug']!, _slugMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_slugMeta);
     }
     if (data.containsKey('website')) {
       context.handle(
@@ -198,10 +179,6 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      slug: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}slug'],
-      )!,
       website: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}website'],
@@ -238,7 +215,6 @@ class $BrandsTable extends Brands with TableInfo<$BrandsTable, Brand> {
 class Brand extends DataClass implements Insertable<Brand> {
   final int id;
   final String name;
-  final String slug;
   final String? website;
   final String? logo;
   final String? notes;
@@ -248,7 +224,6 @@ class Brand extends DataClass implements Insertable<Brand> {
   const Brand({
     required this.id,
     required this.name,
-    required this.slug,
     this.website,
     this.logo,
     this.notes,
@@ -261,7 +236,6 @@ class Brand extends DataClass implements Insertable<Brand> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['slug'] = Variable<String>(slug);
     if (!nullToAbsent || website != null) {
       map['website'] = Variable<String>(website);
     }
@@ -283,7 +257,6 @@ class Brand extends DataClass implements Insertable<Brand> {
     return BrandsCompanion(
       id: Value(id),
       name: Value(name),
-      slug: Value(slug),
       website: website == null && nullToAbsent
           ? const Value.absent()
           : Value(website),
@@ -305,7 +278,6 @@ class Brand extends DataClass implements Insertable<Brand> {
     return Brand(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      slug: serializer.fromJson<String>(json['slug']),
       website: serializer.fromJson<String?>(json['website']),
       logo: serializer.fromJson<String?>(json['logo']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -320,7 +292,6 @@ class Brand extends DataClass implements Insertable<Brand> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'slug': serializer.toJson<String>(slug),
       'website': serializer.toJson<String?>(website),
       'logo': serializer.toJson<String?>(logo),
       'notes': serializer.toJson<String?>(notes),
@@ -333,7 +304,6 @@ class Brand extends DataClass implements Insertable<Brand> {
   Brand copyWith({
     int? id,
     String? name,
-    String? slug,
     Value<String?> website = const Value.absent(),
     Value<String?> logo = const Value.absent(),
     Value<String?> notes = const Value.absent(),
@@ -343,7 +313,6 @@ class Brand extends DataClass implements Insertable<Brand> {
   }) => Brand(
     id: id ?? this.id,
     name: name ?? this.name,
-    slug: slug ?? this.slug,
     website: website.present ? website.value : this.website,
     logo: logo.present ? logo.value : this.logo,
     notes: notes.present ? notes.value : this.notes,
@@ -355,7 +324,6 @@ class Brand extends DataClass implements Insertable<Brand> {
     return Brand(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
-      slug: data.slug.present ? data.slug.value : this.slug,
       website: data.website.present ? data.website.value : this.website,
       logo: data.logo.present ? data.logo.value : this.logo,
       notes: data.notes.present ? data.notes.value : this.notes,
@@ -370,7 +338,6 @@ class Brand extends DataClass implements Insertable<Brand> {
     return (StringBuffer('Brand(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('slug: $slug, ')
           ..write('website: $website, ')
           ..write('logo: $logo, ')
           ..write('notes: $notes, ')
@@ -382,24 +349,14 @@ class Brand extends DataClass implements Insertable<Brand> {
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    name,
-    slug,
-    website,
-    logo,
-    notes,
-    dns,
-    createdAt,
-    updatedAt,
-  );
+  int get hashCode =>
+      Object.hash(id, name, website, logo, notes, dns, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Brand &&
           other.id == this.id &&
           other.name == this.name &&
-          other.slug == this.slug &&
           other.website == this.website &&
           other.logo == this.logo &&
           other.notes == this.notes &&
@@ -411,7 +368,6 @@ class Brand extends DataClass implements Insertable<Brand> {
 class BrandsCompanion extends UpdateCompanion<Brand> {
   final Value<int> id;
   final Value<String> name;
-  final Value<String> slug;
   final Value<String?> website;
   final Value<String?> logo;
   final Value<String?> notes;
@@ -421,7 +377,6 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
   const BrandsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.slug = const Value.absent(),
     this.website = const Value.absent(),
     this.logo = const Value.absent(),
     this.notes = const Value.absent(),
@@ -432,19 +387,16 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
   BrandsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required String slug,
     this.website = const Value.absent(),
     this.logo = const Value.absent(),
     this.notes = const Value.absent(),
     this.dns = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
-  }) : name = Value(name),
-       slug = Value(slug);
+  }) : name = Value(name);
   static Insertable<Brand> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<String>? slug,
     Expression<String>? website,
     Expression<String>? logo,
     Expression<String>? notes,
@@ -455,7 +407,6 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (slug != null) 'slug': slug,
       if (website != null) 'website': website,
       if (logo != null) 'logo': logo,
       if (notes != null) 'notes': notes,
@@ -468,7 +419,6 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
   BrandsCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
-    Value<String>? slug,
     Value<String?>? website,
     Value<String?>? logo,
     Value<String?>? notes,
@@ -479,7 +429,6 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     return BrandsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      slug: slug ?? this.slug,
       website: website ?? this.website,
       logo: logo ?? this.logo,
       notes: notes ?? this.notes,
@@ -497,9 +446,6 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
-    }
-    if (slug.present) {
-      map['slug'] = Variable<String>(slug.value);
     }
     if (website.present) {
       map['website'] = Variable<String>(website.value);
@@ -527,580 +473,10 @@ class BrandsCompanion extends UpdateCompanion<Brand> {
     return (StringBuffer('BrandsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('slug: $slug, ')
           ..write('website: $website, ')
           ..write('logo: $logo, ')
           ..write('notes: $notes, ')
           ..write('dns: $dns, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $RouterModelsTable extends RouterModels
-    with TableInfo<$RouterModelsTable, RouterModel> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $RouterModelsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _brandIdMeta = const VerificationMeta(
-    'brandId',
-  );
-  @override
-  late final GeneratedColumn<int> brandId = GeneratedColumn<int>(
-    'brand_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES brands (id)',
-    ),
-  );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _modelNumberMeta = const VerificationMeta(
-    'modelNumber',
-  );
-  @override
-  late final GeneratedColumn<String> modelNumber = GeneratedColumn<String>(
-    'model_number',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _hardwareVersionMeta = const VerificationMeta(
-    'hardwareVersion',
-  );
-  @override
-  late final GeneratedColumn<String> hardwareVersion = GeneratedColumn<String>(
-    'hardware_version',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _releaseYearMeta = const VerificationMeta(
-    'releaseYear',
-  );
-  @override
-  late final GeneratedColumn<int> releaseYear = GeneratedColumn<int>(
-    'release_year',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    brandId,
-    name,
-    modelNumber,
-    hardwareVersion,
-    releaseYear,
-    notes,
-    createdAt,
-    updatedAt,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'router_models';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<RouterModel> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('brand_id')) {
-      context.handle(
-        _brandIdMeta,
-        brandId.isAcceptableOrUnknown(data['brand_id']!, _brandIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_brandIdMeta);
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('model_number')) {
-      context.handle(
-        _modelNumberMeta,
-        modelNumber.isAcceptableOrUnknown(
-          data['model_number']!,
-          _modelNumberMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_modelNumberMeta);
-    }
-    if (data.containsKey('hardware_version')) {
-      context.handle(
-        _hardwareVersionMeta,
-        hardwareVersion.isAcceptableOrUnknown(
-          data['hardware_version']!,
-          _hardwareVersionMeta,
-        ),
-      );
-    }
-    if (data.containsKey('release_year')) {
-      context.handle(
-        _releaseYearMeta,
-        releaseYear.isAcceptableOrUnknown(
-          data['release_year']!,
-          _releaseYearMeta,
-        ),
-      );
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {brandId, modelNumber},
-  ];
-  @override
-  RouterModel map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return RouterModel(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      brandId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}brand_id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      modelNumber: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}model_number'],
-      )!,
-      hardwareVersion: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}hardware_version'],
-      ),
-      releaseYear: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}release_year'],
-      ),
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-    );
-  }
-
-  @override
-  $RouterModelsTable createAlias(String alias) {
-    return $RouterModelsTable(attachedDatabase, alias);
-  }
-}
-
-class RouterModel extends DataClass implements Insertable<RouterModel> {
-  final int id;
-  final int brandId;
-  final String name;
-  final String modelNumber;
-  final String? hardwareVersion;
-  final int? releaseYear;
-  final String? notes;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  const RouterModel({
-    required this.id,
-    required this.brandId,
-    required this.name,
-    required this.modelNumber,
-    this.hardwareVersion,
-    this.releaseYear,
-    this.notes,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['brand_id'] = Variable<int>(brandId);
-    map['name'] = Variable<String>(name);
-    map['model_number'] = Variable<String>(modelNumber);
-    if (!nullToAbsent || hardwareVersion != null) {
-      map['hardware_version'] = Variable<String>(hardwareVersion);
-    }
-    if (!nullToAbsent || releaseYear != null) {
-      map['release_year'] = Variable<int>(releaseYear);
-    }
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    return map;
-  }
-
-  RouterModelsCompanion toCompanion(bool nullToAbsent) {
-    return RouterModelsCompanion(
-      id: Value(id),
-      brandId: Value(brandId),
-      name: Value(name),
-      modelNumber: Value(modelNumber),
-      hardwareVersion: hardwareVersion == null && nullToAbsent
-          ? const Value.absent()
-          : Value(hardwareVersion),
-      releaseYear: releaseYear == null && nullToAbsent
-          ? const Value.absent()
-          : Value(releaseYear),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-    );
-  }
-
-  factory RouterModel.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return RouterModel(
-      id: serializer.fromJson<int>(json['id']),
-      brandId: serializer.fromJson<int>(json['brandId']),
-      name: serializer.fromJson<String>(json['name']),
-      modelNumber: serializer.fromJson<String>(json['modelNumber']),
-      hardwareVersion: serializer.fromJson<String?>(json['hardwareVersion']),
-      releaseYear: serializer.fromJson<int?>(json['releaseYear']),
-      notes: serializer.fromJson<String?>(json['notes']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'brandId': serializer.toJson<int>(brandId),
-      'name': serializer.toJson<String>(name),
-      'modelNumber': serializer.toJson<String>(modelNumber),
-      'hardwareVersion': serializer.toJson<String?>(hardwareVersion),
-      'releaseYear': serializer.toJson<int?>(releaseYear),
-      'notes': serializer.toJson<String?>(notes),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-    };
-  }
-
-  RouterModel copyWith({
-    int? id,
-    int? brandId,
-    String? name,
-    String? modelNumber,
-    Value<String?> hardwareVersion = const Value.absent(),
-    Value<int?> releaseYear = const Value.absent(),
-    Value<String?> notes = const Value.absent(),
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) => RouterModel(
-    id: id ?? this.id,
-    brandId: brandId ?? this.brandId,
-    name: name ?? this.name,
-    modelNumber: modelNumber ?? this.modelNumber,
-    hardwareVersion: hardwareVersion.present
-        ? hardwareVersion.value
-        : this.hardwareVersion,
-    releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
-    notes: notes.present ? notes.value : this.notes,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
-  RouterModel copyWithCompanion(RouterModelsCompanion data) {
-    return RouterModel(
-      id: data.id.present ? data.id.value : this.id,
-      brandId: data.brandId.present ? data.brandId.value : this.brandId,
-      name: data.name.present ? data.name.value : this.name,
-      modelNumber: data.modelNumber.present
-          ? data.modelNumber.value
-          : this.modelNumber,
-      hardwareVersion: data.hardwareVersion.present
-          ? data.hardwareVersion.value
-          : this.hardwareVersion,
-      releaseYear: data.releaseYear.present
-          ? data.releaseYear.value
-          : this.releaseYear,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('RouterModel(')
-          ..write('id: $id, ')
-          ..write('brandId: $brandId, ')
-          ..write('name: $name, ')
-          ..write('modelNumber: $modelNumber, ')
-          ..write('hardwareVersion: $hardwareVersion, ')
-          ..write('releaseYear: $releaseYear, ')
-          ..write('notes: $notes, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    brandId,
-    name,
-    modelNumber,
-    hardwareVersion,
-    releaseYear,
-    notes,
-    createdAt,
-    updatedAt,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is RouterModel &&
-          other.id == this.id &&
-          other.brandId == this.brandId &&
-          other.name == this.name &&
-          other.modelNumber == this.modelNumber &&
-          other.hardwareVersion == this.hardwareVersion &&
-          other.releaseYear == this.releaseYear &&
-          other.notes == this.notes &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
-}
-
-class RouterModelsCompanion extends UpdateCompanion<RouterModel> {
-  final Value<int> id;
-  final Value<int> brandId;
-  final Value<String> name;
-  final Value<String> modelNumber;
-  final Value<String?> hardwareVersion;
-  final Value<int?> releaseYear;
-  final Value<String?> notes;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  const RouterModelsCompanion({
-    this.id = const Value.absent(),
-    this.brandId = const Value.absent(),
-    this.name = const Value.absent(),
-    this.modelNumber = const Value.absent(),
-    this.hardwareVersion = const Value.absent(),
-    this.releaseYear = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  });
-  RouterModelsCompanion.insert({
-    this.id = const Value.absent(),
-    required int brandId,
-    required String name,
-    required String modelNumber,
-    this.hardwareVersion = const Value.absent(),
-    this.releaseYear = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  }) : brandId = Value(brandId),
-       name = Value(name),
-       modelNumber = Value(modelNumber);
-  static Insertable<RouterModel> custom({
-    Expression<int>? id,
-    Expression<int>? brandId,
-    Expression<String>? name,
-    Expression<String>? modelNumber,
-    Expression<String>? hardwareVersion,
-    Expression<int>? releaseYear,
-    Expression<String>? notes,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (brandId != null) 'brand_id': brandId,
-      if (name != null) 'name': name,
-      if (modelNumber != null) 'model_number': modelNumber,
-      if (hardwareVersion != null) 'hardware_version': hardwareVersion,
-      if (releaseYear != null) 'release_year': releaseYear,
-      if (notes != null) 'notes': notes,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-    });
-  }
-
-  RouterModelsCompanion copyWith({
-    Value<int>? id,
-    Value<int>? brandId,
-    Value<String>? name,
-    Value<String>? modelNumber,
-    Value<String?>? hardwareVersion,
-    Value<int?>? releaseYear,
-    Value<String?>? notes,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-  }) {
-    return RouterModelsCompanion(
-      id: id ?? this.id,
-      brandId: brandId ?? this.brandId,
-      name: name ?? this.name,
-      modelNumber: modelNumber ?? this.modelNumber,
-      hardwareVersion: hardwareVersion ?? this.hardwareVersion,
-      releaseYear: releaseYear ?? this.releaseYear,
-      notes: notes ?? this.notes,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (brandId.present) {
-      map['brand_id'] = Variable<int>(brandId.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (modelNumber.present) {
-      map['model_number'] = Variable<String>(modelNumber.value);
-    }
-    if (hardwareVersion.present) {
-      map['hardware_version'] = Variable<String>(hardwareVersion.value);
-    }
-    if (releaseYear.present) {
-      map['release_year'] = Variable<int>(releaseYear.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('RouterModelsCompanion(')
-          ..write('id: $id, ')
-          ..write('brandId: $brandId, ')
-          ..write('name: $name, ')
-          ..write('modelNumber: $modelNumber, ')
-          ..write('hardwareVersion: $hardwareVersion, ')
-          ..write('releaseYear: $releaseYear, ')
-          ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3443,18 +2819,18 @@ class $FirmwaresTable extends Firmwares
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _routerModelIdMeta = const VerificationMeta(
-    'routerModelId',
+  static const VerificationMeta _brandIdMeta = const VerificationMeta(
+    'brandId',
   );
   @override
-  late final GeneratedColumn<int> routerModelId = GeneratedColumn<int>(
-    'router_model_id',
+  late final GeneratedColumn<int> brandId = GeneratedColumn<int>(
+    'brand_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES router_models (id)',
+      'REFERENCES brands (id)',
     ),
   );
   static const VerificationMeta _firmwareTypeIdMeta = const VerificationMeta(
@@ -3611,7 +2987,7 @@ class $FirmwaresTable extends Firmwares
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    routerModelId,
+    brandId,
     firmwareTypeId,
     apiProfileId,
     version,
@@ -3641,16 +3017,13 @@ class $FirmwaresTable extends Firmwares
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('router_model_id')) {
+    if (data.containsKey('brand_id')) {
       context.handle(
-        _routerModelIdMeta,
-        routerModelId.isAcceptableOrUnknown(
-          data['router_model_id']!,
-          _routerModelIdMeta,
-        ),
+        _brandIdMeta,
+        brandId.isAcceptableOrUnknown(data['brand_id']!, _brandIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_routerModelIdMeta);
+      context.missing(_brandIdMeta);
     }
     if (data.containsKey('firmware_type_id')) {
       context.handle(
@@ -3767,7 +3140,7 @@ class $FirmwaresTable extends Firmwares
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   List<Set<GeneratedColumn>> get uniqueKeys => [
-    {routerModelId, firmwareTypeId, version, buildNumber},
+    {brandId, firmwareTypeId, version, buildNumber},
   ];
   @override
   Firmware map(Map<String, dynamic> data, {String? tablePrefix}) {
@@ -3777,9 +3150,9 @@ class $FirmwaresTable extends Firmwares
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      routerModelId: attachedDatabase.typeMapping.read(
+      brandId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}router_model_id'],
+        data['${effectivePrefix}brand_id'],
       )!,
       firmwareTypeId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -3844,7 +3217,7 @@ class $FirmwaresTable extends Firmwares
 
 class Firmware extends DataClass implements Insertable<Firmware> {
   final int id;
-  final int routerModelId;
+  final int brandId;
   final int firmwareTypeId;
   final int apiProfileId;
   final String version;
@@ -3860,7 +3233,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
   final DateTime updatedAt;
   const Firmware({
     required this.id,
-    required this.routerModelId,
+    required this.brandId,
     required this.firmwareTypeId,
     required this.apiProfileId,
     required this.version,
@@ -3879,7 +3252,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['router_model_id'] = Variable<int>(routerModelId);
+    map['brand_id'] = Variable<int>(brandId);
     map['firmware_type_id'] = Variable<int>(firmwareTypeId);
     map['api_profile_id'] = Variable<int>(apiProfileId);
     map['version'] = Variable<String>(version);
@@ -3913,7 +3286,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
   FirmwaresCompanion toCompanion(bool nullToAbsent) {
     return FirmwaresCompanion(
       id: Value(id),
-      routerModelId: Value(routerModelId),
+      brandId: Value(brandId),
       firmwareTypeId: Value(firmwareTypeId),
       apiProfileId: Value(apiProfileId),
       version: Value(version),
@@ -3951,7 +3324,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Firmware(
       id: serializer.fromJson<int>(json['id']),
-      routerModelId: serializer.fromJson<int>(json['routerModelId']),
+      brandId: serializer.fromJson<int>(json['brandId']),
       firmwareTypeId: serializer.fromJson<int>(json['firmwareTypeId']),
       apiProfileId: serializer.fromJson<int>(json['apiProfileId']),
       version: serializer.fromJson<String>(json['version']),
@@ -3972,7 +3345,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'routerModelId': serializer.toJson<int>(routerModelId),
+      'brandId': serializer.toJson<int>(brandId),
       'firmwareTypeId': serializer.toJson<int>(firmwareTypeId),
       'apiProfileId': serializer.toJson<int>(apiProfileId),
       'version': serializer.toJson<String>(version),
@@ -3991,7 +3364,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
 
   Firmware copyWith({
     int? id,
-    int? routerModelId,
+    int? brandId,
     int? firmwareTypeId,
     int? apiProfileId,
     String? version,
@@ -4007,7 +3380,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
     DateTime? updatedAt,
   }) => Firmware(
     id: id ?? this.id,
-    routerModelId: routerModelId ?? this.routerModelId,
+    brandId: brandId ?? this.brandId,
     firmwareTypeId: firmwareTypeId ?? this.firmwareTypeId,
     apiProfileId: apiProfileId ?? this.apiProfileId,
     version: version ?? this.version,
@@ -4025,9 +3398,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
   Firmware copyWithCompanion(FirmwaresCompanion data) {
     return Firmware(
       id: data.id.present ? data.id.value : this.id,
-      routerModelId: data.routerModelId.present
-          ? data.routerModelId.value
-          : this.routerModelId,
+      brandId: data.brandId.present ? data.brandId.value : this.brandId,
       firmwareTypeId: data.firmwareTypeId.present
           ? data.firmwareTypeId.value
           : this.firmwareTypeId,
@@ -4064,7 +3435,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
   String toString() {
     return (StringBuffer('Firmware(')
           ..write('id: $id, ')
-          ..write('routerModelId: $routerModelId, ')
+          ..write('brandId: $brandId, ')
           ..write('firmwareTypeId: $firmwareTypeId, ')
           ..write('apiProfileId: $apiProfileId, ')
           ..write('version: $version, ')
@@ -4085,7 +3456,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
   @override
   int get hashCode => Object.hash(
     id,
-    routerModelId,
+    brandId,
     firmwareTypeId,
     apiProfileId,
     version,
@@ -4105,7 +3476,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
       identical(this, other) ||
       (other is Firmware &&
           other.id == this.id &&
-          other.routerModelId == this.routerModelId &&
+          other.brandId == this.brandId &&
           other.firmwareTypeId == this.firmwareTypeId &&
           other.apiProfileId == this.apiProfileId &&
           other.version == this.version &&
@@ -4123,7 +3494,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
 
 class FirmwaresCompanion extends UpdateCompanion<Firmware> {
   final Value<int> id;
-  final Value<int> routerModelId;
+  final Value<int> brandId;
   final Value<int> firmwareTypeId;
   final Value<int> apiProfileId;
   final Value<String> version;
@@ -4139,7 +3510,7 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
   final Value<DateTime> updatedAt;
   const FirmwaresCompanion({
     this.id = const Value.absent(),
-    this.routerModelId = const Value.absent(),
+    this.brandId = const Value.absent(),
     this.firmwareTypeId = const Value.absent(),
     this.apiProfileId = const Value.absent(),
     this.version = const Value.absent(),
@@ -4156,7 +3527,7 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
   });
   FirmwaresCompanion.insert({
     this.id = const Value.absent(),
-    required int routerModelId,
+    required int brandId,
     required int firmwareTypeId,
     required int apiProfileId,
     required String version,
@@ -4170,13 +3541,13 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
-  }) : routerModelId = Value(routerModelId),
+  }) : brandId = Value(brandId),
        firmwareTypeId = Value(firmwareTypeId),
        apiProfileId = Value(apiProfileId),
        version = Value(version);
   static Insertable<Firmware> custom({
     Expression<int>? id,
-    Expression<int>? routerModelId,
+    Expression<int>? brandId,
     Expression<int>? firmwareTypeId,
     Expression<int>? apiProfileId,
     Expression<String>? version,
@@ -4193,7 +3564,7 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (routerModelId != null) 'router_model_id': routerModelId,
+      if (brandId != null) 'brand_id': brandId,
       if (firmwareTypeId != null) 'firmware_type_id': firmwareTypeId,
       if (apiProfileId != null) 'api_profile_id': apiProfileId,
       if (version != null) 'version': version,
@@ -4212,7 +3583,7 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
 
   FirmwaresCompanion copyWith({
     Value<int>? id,
-    Value<int>? routerModelId,
+    Value<int>? brandId,
     Value<int>? firmwareTypeId,
     Value<int>? apiProfileId,
     Value<String>? version,
@@ -4229,7 +3600,7 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
   }) {
     return FirmwaresCompanion(
       id: id ?? this.id,
-      routerModelId: routerModelId ?? this.routerModelId,
+      brandId: brandId ?? this.brandId,
       firmwareTypeId: firmwareTypeId ?? this.firmwareTypeId,
       apiProfileId: apiProfileId ?? this.apiProfileId,
       version: version ?? this.version,
@@ -4252,8 +3623,8 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (routerModelId.present) {
-      map['router_model_id'] = Variable<int>(routerModelId.value);
+    if (brandId.present) {
+      map['brand_id'] = Variable<int>(brandId.value);
     }
     if (firmwareTypeId.present) {
       map['firmware_type_id'] = Variable<int>(firmwareTypeId.value);
@@ -4301,7 +3672,7 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
   String toString() {
     return (StringBuffer('FirmwaresCompanion(')
           ..write('id: $id, ')
-          ..write('routerModelId: $routerModelId, ')
+          ..write('brandId: $brandId, ')
           ..write('firmwareTypeId: $firmwareTypeId, ')
           ..write('apiProfileId: $apiProfileId, ')
           ..write('version: $version, ')
@@ -5575,18 +4946,18 @@ class $FingerprintsTable extends Fingerprints
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _routerModelIdMeta = const VerificationMeta(
-    'routerModelId',
+  static const VerificationMeta _brandIdMeta = const VerificationMeta(
+    'brandId',
   );
   @override
-  late final GeneratedColumn<int> routerModelId = GeneratedColumn<int>(
-    'router_model_id',
+  late final GeneratedColumn<int> brandId = GeneratedColumn<int>(
+    'brand_id',
     aliasedName,
     true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES router_models (id)',
+      'REFERENCES brands (id)',
     ),
   );
   static const VerificationMeta _firmwareIdMeta = const VerificationMeta(
@@ -5676,7 +5047,7 @@ class $FingerprintsTable extends Fingerprints
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    routerModelId,
+    brandId,
     firmwareId,
     matchType,
     matchValue,
@@ -5700,13 +5071,10 @@ class $FingerprintsTable extends Fingerprints
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('router_model_id')) {
+    if (data.containsKey('brand_id')) {
       context.handle(
-        _routerModelIdMeta,
-        routerModelId.isAcceptableOrUnknown(
-          data['router_model_id']!,
-          _routerModelIdMeta,
-        ),
+        _brandIdMeta,
+        brandId.isAcceptableOrUnknown(data['brand_id']!, _brandIdMeta),
       );
     }
     if (data.containsKey('firmware_id')) {
@@ -5768,9 +5136,9 @@ class $FingerprintsTable extends Fingerprints
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      routerModelId: attachedDatabase.typeMapping.read(
+      brandId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}router_model_id'],
+        data['${effectivePrefix}brand_id'],
       ),
       firmwareId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -5811,7 +5179,7 @@ class $FingerprintsTable extends Fingerprints
 
 class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   final int id;
-  final int? routerModelId;
+  final int? brandId;
   final int? firmwareId;
   final String matchType;
   final String matchValue;
@@ -5821,7 +5189,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   final DateTime updatedAt;
   const Fingerprint({
     required this.id,
-    this.routerModelId,
+    this.brandId,
     this.firmwareId,
     required this.matchType,
     required this.matchValue,
@@ -5834,8 +5202,8 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    if (!nullToAbsent || routerModelId != null) {
-      map['router_model_id'] = Variable<int>(routerModelId);
+    if (!nullToAbsent || brandId != null) {
+      map['brand_id'] = Variable<int>(brandId);
     }
     if (!nullToAbsent || firmwareId != null) {
       map['firmware_id'] = Variable<int>(firmwareId);
@@ -5852,9 +5220,9 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   FingerprintsCompanion toCompanion(bool nullToAbsent) {
     return FingerprintsCompanion(
       id: Value(id),
-      routerModelId: routerModelId == null && nullToAbsent
+      brandId: brandId == null && nullToAbsent
           ? const Value.absent()
-          : Value(routerModelId),
+          : Value(brandId),
       firmwareId: firmwareId == null && nullToAbsent
           ? const Value.absent()
           : Value(firmwareId),
@@ -5874,7 +5242,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Fingerprint(
       id: serializer.fromJson<int>(json['id']),
-      routerModelId: serializer.fromJson<int?>(json['routerModelId']),
+      brandId: serializer.fromJson<int?>(json['brandId']),
       firmwareId: serializer.fromJson<int?>(json['firmwareId']),
       matchType: serializer.fromJson<String>(json['matchType']),
       matchValue: serializer.fromJson<String>(json['matchValue']),
@@ -5889,7 +5257,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'routerModelId': serializer.toJson<int?>(routerModelId),
+      'brandId': serializer.toJson<int?>(brandId),
       'firmwareId': serializer.toJson<int?>(firmwareId),
       'matchType': serializer.toJson<String>(matchType),
       'matchValue': serializer.toJson<String>(matchValue),
@@ -5902,7 +5270,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
 
   Fingerprint copyWith({
     int? id,
-    Value<int?> routerModelId = const Value.absent(),
+    Value<int?> brandId = const Value.absent(),
     Value<int?> firmwareId = const Value.absent(),
     String? matchType,
     String? matchValue,
@@ -5912,9 +5280,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
     DateTime? updatedAt,
   }) => Fingerprint(
     id: id ?? this.id,
-    routerModelId: routerModelId.present
-        ? routerModelId.value
-        : this.routerModelId,
+    brandId: brandId.present ? brandId.value : this.brandId,
     firmwareId: firmwareId.present ? firmwareId.value : this.firmwareId,
     matchType: matchType ?? this.matchType,
     matchValue: matchValue ?? this.matchValue,
@@ -5926,9 +5292,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   Fingerprint copyWithCompanion(FingerprintsCompanion data) {
     return Fingerprint(
       id: data.id.present ? data.id.value : this.id,
-      routerModelId: data.routerModelId.present
-          ? data.routerModelId.value
-          : this.routerModelId,
+      brandId: data.brandId.present ? data.brandId.value : this.brandId,
       firmwareId: data.firmwareId.present
           ? data.firmwareId.value
           : this.firmwareId,
@@ -5949,7 +5313,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   String toString() {
     return (StringBuffer('Fingerprint(')
           ..write('id: $id, ')
-          ..write('routerModelId: $routerModelId, ')
+          ..write('brandId: $brandId, ')
           ..write('firmwareId: $firmwareId, ')
           ..write('matchType: $matchType, ')
           ..write('matchValue: $matchValue, ')
@@ -5964,7 +5328,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   @override
   int get hashCode => Object.hash(
     id,
-    routerModelId,
+    brandId,
     firmwareId,
     matchType,
     matchValue,
@@ -5978,7 +5342,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
       identical(this, other) ||
       (other is Fingerprint &&
           other.id == this.id &&
-          other.routerModelId == this.routerModelId &&
+          other.brandId == this.brandId &&
           other.firmwareId == this.firmwareId &&
           other.matchType == this.matchType &&
           other.matchValue == this.matchValue &&
@@ -5990,7 +5354,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
 
 class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
   final Value<int> id;
-  final Value<int?> routerModelId;
+  final Value<int?> brandId;
   final Value<int?> firmwareId;
   final Value<String> matchType;
   final Value<String> matchValue;
@@ -6000,7 +5364,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
   final Value<DateTime> updatedAt;
   const FingerprintsCompanion({
     this.id = const Value.absent(),
-    this.routerModelId = const Value.absent(),
+    this.brandId = const Value.absent(),
     this.firmwareId = const Value.absent(),
     this.matchType = const Value.absent(),
     this.matchValue = const Value.absent(),
@@ -6011,7 +5375,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
   });
   FingerprintsCompanion.insert({
     this.id = const Value.absent(),
-    this.routerModelId = const Value.absent(),
+    this.brandId = const Value.absent(),
     this.firmwareId = const Value.absent(),
     required String matchType,
     required String matchValue,
@@ -6023,7 +5387,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
        matchValue = Value(matchValue);
   static Insertable<Fingerprint> custom({
     Expression<int>? id,
-    Expression<int>? routerModelId,
+    Expression<int>? brandId,
     Expression<int>? firmwareId,
     Expression<String>? matchType,
     Expression<String>? matchValue,
@@ -6034,7 +5398,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (routerModelId != null) 'router_model_id': routerModelId,
+      if (brandId != null) 'brand_id': brandId,
       if (firmwareId != null) 'firmware_id': firmwareId,
       if (matchType != null) 'match_type': matchType,
       if (matchValue != null) 'match_value': matchValue,
@@ -6047,7 +5411,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
 
   FingerprintsCompanion copyWith({
     Value<int>? id,
-    Value<int?>? routerModelId,
+    Value<int?>? brandId,
     Value<int?>? firmwareId,
     Value<String>? matchType,
     Value<String>? matchValue,
@@ -6058,7 +5422,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
   }) {
     return FingerprintsCompanion(
       id: id ?? this.id,
-      routerModelId: routerModelId ?? this.routerModelId,
+      brandId: brandId ?? this.brandId,
       firmwareId: firmwareId ?? this.firmwareId,
       matchType: matchType ?? this.matchType,
       matchValue: matchValue ?? this.matchValue,
@@ -6075,8 +5439,8 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (routerModelId.present) {
-      map['router_model_id'] = Variable<int>(routerModelId.value);
+    if (brandId.present) {
+      map['brand_id'] = Variable<int>(brandId.value);
     }
     if (firmwareId.present) {
       map['firmware_id'] = Variable<int>(firmwareId.value);
@@ -6106,7 +5470,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
   String toString() {
     return (StringBuffer('FingerprintsCompanion(')
           ..write('id: $id, ')
-          ..write('routerModelId: $routerModelId, ')
+          ..write('brandId: $brandId, ')
           ..write('firmwareId: $firmwareId, ')
           ..write('matchType: $matchType, ')
           ..write('matchValue: $matchValue, ')
@@ -6590,11 +5954,12 @@ class VersionRulesCompanion extends UpdateCompanion<VersionRule> {
   }
 }
 
-class $DevicesTable extends Devices with TableInfo<$DevicesTable, Device> {
+class $UserDevicesTable extends UserDevices
+    with TableInfo<$UserDevicesTable, UserDevice> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DevicesTable(this.attachedDatabase, [this._alias]);
+  $UserDevicesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -6608,104 +5973,50 @@ class $DevicesTable extends Devices with TableInfo<$DevicesTable, Device> {
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _routerModelIdMeta = const VerificationMeta(
-    'routerModelId',
+  static const VerificationMeta _brandIdMeta = const VerificationMeta(
+    'brandId',
   );
   @override
-  late final GeneratedColumn<int> routerModelId = GeneratedColumn<int>(
-    'router_model_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES router_models (id)',
-    ),
-  );
-  static const VerificationMeta _firmwareIdMeta = const VerificationMeta(
-    'firmwareId',
-  );
-  @override
-  late final GeneratedColumn<int> firmwareId = GeneratedColumn<int>(
-    'firmware_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES firmwares (id)',
-    ),
-  );
-  static const VerificationMeta _ipAddressMeta = const VerificationMeta(
-    'ipAddress',
-  );
-  @override
-  late final GeneratedColumn<String> ipAddress = GeneratedColumn<String>(
-    'ip_address',
+  late final GeneratedColumn<int> brandId = GeneratedColumn<int>(
+    'brand_id',
     aliasedName,
     false,
-    type: DriftSqlType.string,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES brands (id)',
+    ),
   );
-  static const VerificationMeta _macAddressMeta = const VerificationMeta(
-    'macAddress',
+  static const VerificationMeta _routerModelMeta = const VerificationMeta(
+    'routerModel',
   );
   @override
-  late final GeneratedColumn<String> macAddress = GeneratedColumn<String>(
-    'mac_address',
+  late final GeneratedColumn<String> routerModel = GeneratedColumn<String>(
+    'router_model',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _aliasMeta = const VerificationMeta('alias');
+  static const VerificationMeta _dnsMeta = const VerificationMeta('dns');
   @override
-  late final GeneratedColumn<String> alias = GeneratedColumn<String>(
-    'alias',
+  late final GeneratedColumn<String> dns = GeneratedColumn<String>(
+    'dns',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _credentialsEncryptedMeta =
-      const VerificationMeta('credentialsEncrypted');
-  @override
-  late final GeneratedColumn<String> credentialsEncrypted =
-      GeneratedColumn<String>(
-        'credentials_encrypted',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _lastFingerprintIdMeta = const VerificationMeta(
-    'lastFingerprintId',
+  static const VerificationMeta _endpointIdMeta = const VerificationMeta(
+    'endpointId',
   );
   @override
-  late final GeneratedColumn<int> lastFingerprintId = GeneratedColumn<int>(
-    'last_fingerprint_id',
+  late final GeneratedColumn<int> endpointId = GeneratedColumn<int>(
+    'endpoint_id',
     aliasedName,
     true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES fingerprints (id)',
-    ),
-  );
-  static const VerificationMeta _isVerifiedMeta = const VerificationMeta(
-    'isVerified',
-  );
-  @override
-  late final GeneratedColumn<bool> isVerified = GeneratedColumn<bool>(
-    'is_verified',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_verified" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
   );
   static const VerificationMeta _lastSeenAtMeta = const VerificationMeta(
     'lastSeenAt',
@@ -6745,14 +6056,10 @@ class $DevicesTable extends Devices with TableInfo<$DevicesTable, Device> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    routerModelId,
-    firmwareId,
-    ipAddress,
-    macAddress,
-    alias,
-    credentialsEncrypted,
-    lastFingerprintId,
-    isVerified,
+    brandId,
+    routerModel,
+    dns,
+    endpointId,
     lastSeenAt,
     createdAt,
     updatedAt,
@@ -6761,10 +6068,10 @@ class $DevicesTable extends Devices with TableInfo<$DevicesTable, Device> {
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'devices';
+  static const String $name = 'user_devices';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Device> instance, {
+    Insertable<UserDevice> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -6772,63 +6079,33 @@ class $DevicesTable extends Devices with TableInfo<$DevicesTable, Device> {
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('router_model_id')) {
+    if (data.containsKey('brand_id')) {
       context.handle(
-        _routerModelIdMeta,
-        routerModelId.isAcceptableOrUnknown(
-          data['router_model_id']!,
-          _routerModelIdMeta,
-        ),
-      );
-    }
-    if (data.containsKey('firmware_id')) {
-      context.handle(
-        _firmwareIdMeta,
-        firmwareId.isAcceptableOrUnknown(data['firmware_id']!, _firmwareIdMeta),
-      );
-    }
-    if (data.containsKey('ip_address')) {
-      context.handle(
-        _ipAddressMeta,
-        ipAddress.isAcceptableOrUnknown(data['ip_address']!, _ipAddressMeta),
+        _brandIdMeta,
+        brandId.isAcceptableOrUnknown(data['brand_id']!, _brandIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_ipAddressMeta);
+      context.missing(_brandIdMeta);
     }
-    if (data.containsKey('mac_address')) {
+    if (data.containsKey('router_model')) {
       context.handle(
-        _macAddressMeta,
-        macAddress.isAcceptableOrUnknown(data['mac_address']!, _macAddressMeta),
-      );
-    }
-    if (data.containsKey('alias')) {
-      context.handle(
-        _aliasMeta,
-        alias.isAcceptableOrUnknown(data['alias']!, _aliasMeta),
-      );
-    }
-    if (data.containsKey('credentials_encrypted')) {
-      context.handle(
-        _credentialsEncryptedMeta,
-        credentialsEncrypted.isAcceptableOrUnknown(
-          data['credentials_encrypted']!,
-          _credentialsEncryptedMeta,
+        _routerModelMeta,
+        routerModel.isAcceptableOrUnknown(
+          data['router_model']!,
+          _routerModelMeta,
         ),
       );
     }
-    if (data.containsKey('last_fingerprint_id')) {
+    if (data.containsKey('dns')) {
       context.handle(
-        _lastFingerprintIdMeta,
-        lastFingerprintId.isAcceptableOrUnknown(
-          data['last_fingerprint_id']!,
-          _lastFingerprintIdMeta,
-        ),
+        _dnsMeta,
+        dns.isAcceptableOrUnknown(data['dns']!, _dnsMeta),
       );
     }
-    if (data.containsKey('is_verified')) {
+    if (data.containsKey('endpoint_id')) {
       context.handle(
-        _isVerifiedMeta,
-        isVerified.isAcceptableOrUnknown(data['is_verified']!, _isVerifiedMeta),
+        _endpointIdMeta,
+        endpointId.isAcceptableOrUnknown(data['endpoint_id']!, _endpointIdMeta),
       );
     }
     if (data.containsKey('last_seen_at')) {
@@ -6858,45 +6135,29 @@ class $DevicesTable extends Devices with TableInfo<$DevicesTable, Device> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Device map(Map<String, dynamic> data, {String? tablePrefix}) {
+  UserDevice map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Device(
+    return UserDevice(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      routerModelId: attachedDatabase.typeMapping.read(
+      brandId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}router_model_id'],
-      ),
-      firmwareId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}firmware_id'],
-      ),
-      ipAddress: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}ip_address'],
+        data['${effectivePrefix}brand_id'],
       )!,
-      macAddress: attachedDatabase.typeMapping.read(
+      routerModel: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}mac_address'],
+        data['${effectivePrefix}router_model'],
       ),
-      alias: attachedDatabase.typeMapping.read(
+      dns: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}alias'],
+        data['${effectivePrefix}dns'],
       ),
-      credentialsEncrypted: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}credentials_encrypted'],
-      ),
-      lastFingerprintId: attachedDatabase.typeMapping.read(
+      endpointId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}last_fingerprint_id'],
+        data['${effectivePrefix}endpoint_id'],
       ),
-      isVerified: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_verified'],
-      )!,
       lastSeenAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_seen_at'],
@@ -6913,34 +6174,26 @@ class $DevicesTable extends Devices with TableInfo<$DevicesTable, Device> {
   }
 
   @override
-  $DevicesTable createAlias(String alias) {
-    return $DevicesTable(attachedDatabase, alias);
+  $UserDevicesTable createAlias(String alias) {
+    return $UserDevicesTable(attachedDatabase, alias);
   }
 }
 
-class Device extends DataClass implements Insertable<Device> {
+class UserDevice extends DataClass implements Insertable<UserDevice> {
   final int id;
-  final int? routerModelId;
-  final int? firmwareId;
-  final String ipAddress;
-  final String? macAddress;
-  final String? alias;
-  final String? credentialsEncrypted;
-  final int? lastFingerprintId;
-  final bool isVerified;
+  final int brandId;
+  final String? routerModel;
+  final String? dns;
+  final int? endpointId;
   final DateTime? lastSeenAt;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const Device({
+  const UserDevice({
     required this.id,
-    this.routerModelId,
-    this.firmwareId,
-    required this.ipAddress,
-    this.macAddress,
-    this.alias,
-    this.credentialsEncrypted,
-    this.lastFingerprintId,
-    required this.isVerified,
+    required this.brandId,
+    this.routerModel,
+    this.dns,
+    this.endpointId,
     this.lastSeenAt,
     required this.createdAt,
     required this.updatedAt,
@@ -6949,26 +6202,16 @@ class Device extends DataClass implements Insertable<Device> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    if (!nullToAbsent || routerModelId != null) {
-      map['router_model_id'] = Variable<int>(routerModelId);
+    map['brand_id'] = Variable<int>(brandId);
+    if (!nullToAbsent || routerModel != null) {
+      map['router_model'] = Variable<String>(routerModel);
     }
-    if (!nullToAbsent || firmwareId != null) {
-      map['firmware_id'] = Variable<int>(firmwareId);
+    if (!nullToAbsent || dns != null) {
+      map['dns'] = Variable<String>(dns);
     }
-    map['ip_address'] = Variable<String>(ipAddress);
-    if (!nullToAbsent || macAddress != null) {
-      map['mac_address'] = Variable<String>(macAddress);
+    if (!nullToAbsent || endpointId != null) {
+      map['endpoint_id'] = Variable<int>(endpointId);
     }
-    if (!nullToAbsent || alias != null) {
-      map['alias'] = Variable<String>(alias);
-    }
-    if (!nullToAbsent || credentialsEncrypted != null) {
-      map['credentials_encrypted'] = Variable<String>(credentialsEncrypted);
-    }
-    if (!nullToAbsent || lastFingerprintId != null) {
-      map['last_fingerprint_id'] = Variable<int>(lastFingerprintId);
-    }
-    map['is_verified'] = Variable<bool>(isVerified);
     if (!nullToAbsent || lastSeenAt != null) {
       map['last_seen_at'] = Variable<DateTime>(lastSeenAt);
     }
@@ -6977,29 +6220,17 @@ class Device extends DataClass implements Insertable<Device> {
     return map;
   }
 
-  DevicesCompanion toCompanion(bool nullToAbsent) {
-    return DevicesCompanion(
+  UserDevicesCompanion toCompanion(bool nullToAbsent) {
+    return UserDevicesCompanion(
       id: Value(id),
-      routerModelId: routerModelId == null && nullToAbsent
+      brandId: Value(brandId),
+      routerModel: routerModel == null && nullToAbsent
           ? const Value.absent()
-          : Value(routerModelId),
-      firmwareId: firmwareId == null && nullToAbsent
+          : Value(routerModel),
+      dns: dns == null && nullToAbsent ? const Value.absent() : Value(dns),
+      endpointId: endpointId == null && nullToAbsent
           ? const Value.absent()
-          : Value(firmwareId),
-      ipAddress: Value(ipAddress),
-      macAddress: macAddress == null && nullToAbsent
-          ? const Value.absent()
-          : Value(macAddress),
-      alias: alias == null && nullToAbsent
-          ? const Value.absent()
-          : Value(alias),
-      credentialsEncrypted: credentialsEncrypted == null && nullToAbsent
-          ? const Value.absent()
-          : Value(credentialsEncrypted),
-      lastFingerprintId: lastFingerprintId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastFingerprintId),
-      isVerified: Value(isVerified),
+          : Value(endpointId),
       lastSeenAt: lastSeenAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSeenAt),
@@ -7008,23 +6239,17 @@ class Device extends DataClass implements Insertable<Device> {
     );
   }
 
-  factory Device.fromJson(
+  factory UserDevice.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Device(
+    return UserDevice(
       id: serializer.fromJson<int>(json['id']),
-      routerModelId: serializer.fromJson<int?>(json['routerModelId']),
-      firmwareId: serializer.fromJson<int?>(json['firmwareId']),
-      ipAddress: serializer.fromJson<String>(json['ipAddress']),
-      macAddress: serializer.fromJson<String?>(json['macAddress']),
-      alias: serializer.fromJson<String?>(json['alias']),
-      credentialsEncrypted: serializer.fromJson<String?>(
-        json['credentialsEncrypted'],
-      ),
-      lastFingerprintId: serializer.fromJson<int?>(json['lastFingerprintId']),
-      isVerified: serializer.fromJson<bool>(json['isVerified']),
+      brandId: serializer.fromJson<int>(json['brandId']),
+      routerModel: serializer.fromJson<String?>(json['routerModel']),
+      dns: serializer.fromJson<String?>(json['dns']),
+      endpointId: serializer.fromJson<int?>(json['endpointId']),
       lastSeenAt: serializer.fromJson<DateTime?>(json['lastSeenAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -7035,76 +6260,46 @@ class Device extends DataClass implements Insertable<Device> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'routerModelId': serializer.toJson<int?>(routerModelId),
-      'firmwareId': serializer.toJson<int?>(firmwareId),
-      'ipAddress': serializer.toJson<String>(ipAddress),
-      'macAddress': serializer.toJson<String?>(macAddress),
-      'alias': serializer.toJson<String?>(alias),
-      'credentialsEncrypted': serializer.toJson<String?>(credentialsEncrypted),
-      'lastFingerprintId': serializer.toJson<int?>(lastFingerprintId),
-      'isVerified': serializer.toJson<bool>(isVerified),
+      'brandId': serializer.toJson<int>(brandId),
+      'routerModel': serializer.toJson<String?>(routerModel),
+      'dns': serializer.toJson<String?>(dns),
+      'endpointId': serializer.toJson<int?>(endpointId),
       'lastSeenAt': serializer.toJson<DateTime?>(lastSeenAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
-  Device copyWith({
+  UserDevice copyWith({
     int? id,
-    Value<int?> routerModelId = const Value.absent(),
-    Value<int?> firmwareId = const Value.absent(),
-    String? ipAddress,
-    Value<String?> macAddress = const Value.absent(),
-    Value<String?> alias = const Value.absent(),
-    Value<String?> credentialsEncrypted = const Value.absent(),
-    Value<int?> lastFingerprintId = const Value.absent(),
-    bool? isVerified,
+    int? brandId,
+    Value<String?> routerModel = const Value.absent(),
+    Value<String?> dns = const Value.absent(),
+    Value<int?> endpointId = const Value.absent(),
     Value<DateTime?> lastSeenAt = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) => Device(
+  }) => UserDevice(
     id: id ?? this.id,
-    routerModelId: routerModelId.present
-        ? routerModelId.value
-        : this.routerModelId,
-    firmwareId: firmwareId.present ? firmwareId.value : this.firmwareId,
-    ipAddress: ipAddress ?? this.ipAddress,
-    macAddress: macAddress.present ? macAddress.value : this.macAddress,
-    alias: alias.present ? alias.value : this.alias,
-    credentialsEncrypted: credentialsEncrypted.present
-        ? credentialsEncrypted.value
-        : this.credentialsEncrypted,
-    lastFingerprintId: lastFingerprintId.present
-        ? lastFingerprintId.value
-        : this.lastFingerprintId,
-    isVerified: isVerified ?? this.isVerified,
+    brandId: brandId ?? this.brandId,
+    routerModel: routerModel.present ? routerModel.value : this.routerModel,
+    dns: dns.present ? dns.value : this.dns,
+    endpointId: endpointId.present ? endpointId.value : this.endpointId,
     lastSeenAt: lastSeenAt.present ? lastSeenAt.value : this.lastSeenAt,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
-  Device copyWithCompanion(DevicesCompanion data) {
-    return Device(
+  UserDevice copyWithCompanion(UserDevicesCompanion data) {
+    return UserDevice(
       id: data.id.present ? data.id.value : this.id,
-      routerModelId: data.routerModelId.present
-          ? data.routerModelId.value
-          : this.routerModelId,
-      firmwareId: data.firmwareId.present
-          ? data.firmwareId.value
-          : this.firmwareId,
-      ipAddress: data.ipAddress.present ? data.ipAddress.value : this.ipAddress,
-      macAddress: data.macAddress.present
-          ? data.macAddress.value
-          : this.macAddress,
-      alias: data.alias.present ? data.alias.value : this.alias,
-      credentialsEncrypted: data.credentialsEncrypted.present
-          ? data.credentialsEncrypted.value
-          : this.credentialsEncrypted,
-      lastFingerprintId: data.lastFingerprintId.present
-          ? data.lastFingerprintId.value
-          : this.lastFingerprintId,
-      isVerified: data.isVerified.present
-          ? data.isVerified.value
-          : this.isVerified,
+      brandId: data.brandId.present ? data.brandId.value : this.brandId,
+      routerModel: data.routerModel.present
+          ? data.routerModel.value
+          : this.routerModel,
+      dns: data.dns.present ? data.dns.value : this.dns,
+      endpointId: data.endpointId.present
+          ? data.endpointId.value
+          : this.endpointId,
       lastSeenAt: data.lastSeenAt.present
           ? data.lastSeenAt.value
           : this.lastSeenAt,
@@ -7115,16 +6310,12 @@ class Device extends DataClass implements Insertable<Device> {
 
   @override
   String toString() {
-    return (StringBuffer('Device(')
+    return (StringBuffer('UserDevice(')
           ..write('id: $id, ')
-          ..write('routerModelId: $routerModelId, ')
-          ..write('firmwareId: $firmwareId, ')
-          ..write('ipAddress: $ipAddress, ')
-          ..write('macAddress: $macAddress, ')
-          ..write('alias: $alias, ')
-          ..write('credentialsEncrypted: $credentialsEncrypted, ')
-          ..write('lastFingerprintId: $lastFingerprintId, ')
-          ..write('isVerified: $isVerified, ')
+          ..write('brandId: $brandId, ')
+          ..write('routerModel: $routerModel, ')
+          ..write('dns: $dns, ')
+          ..write('endpointId: $endpointId, ')
           ..write('lastSeenAt: $lastSeenAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -7135,14 +6326,10 @@ class Device extends DataClass implements Insertable<Device> {
   @override
   int get hashCode => Object.hash(
     id,
-    routerModelId,
-    firmwareId,
-    ipAddress,
-    macAddress,
-    alias,
-    credentialsEncrypted,
-    lastFingerprintId,
-    isVerified,
+    brandId,
+    routerModel,
+    dns,
+    endpointId,
     lastSeenAt,
     createdAt,
     updatedAt,
@@ -7150,117 +6337,84 @@ class Device extends DataClass implements Insertable<Device> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Device &&
+      (other is UserDevice &&
           other.id == this.id &&
-          other.routerModelId == this.routerModelId &&
-          other.firmwareId == this.firmwareId &&
-          other.ipAddress == this.ipAddress &&
-          other.macAddress == this.macAddress &&
-          other.alias == this.alias &&
-          other.credentialsEncrypted == this.credentialsEncrypted &&
-          other.lastFingerprintId == this.lastFingerprintId &&
-          other.isVerified == this.isVerified &&
+          other.brandId == this.brandId &&
+          other.routerModel == this.routerModel &&
+          other.dns == this.dns &&
+          other.endpointId == this.endpointId &&
           other.lastSeenAt == this.lastSeenAt &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
 
-class DevicesCompanion extends UpdateCompanion<Device> {
+class UserDevicesCompanion extends UpdateCompanion<UserDevice> {
   final Value<int> id;
-  final Value<int?> routerModelId;
-  final Value<int?> firmwareId;
-  final Value<String> ipAddress;
-  final Value<String?> macAddress;
-  final Value<String?> alias;
-  final Value<String?> credentialsEncrypted;
-  final Value<int?> lastFingerprintId;
-  final Value<bool> isVerified;
+  final Value<int> brandId;
+  final Value<String?> routerModel;
+  final Value<String?> dns;
+  final Value<int?> endpointId;
   final Value<DateTime?> lastSeenAt;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
-  const DevicesCompanion({
+  const UserDevicesCompanion({
     this.id = const Value.absent(),
-    this.routerModelId = const Value.absent(),
-    this.firmwareId = const Value.absent(),
-    this.ipAddress = const Value.absent(),
-    this.macAddress = const Value.absent(),
-    this.alias = const Value.absent(),
-    this.credentialsEncrypted = const Value.absent(),
-    this.lastFingerprintId = const Value.absent(),
-    this.isVerified = const Value.absent(),
+    this.brandId = const Value.absent(),
+    this.routerModel = const Value.absent(),
+    this.dns = const Value.absent(),
+    this.endpointId = const Value.absent(),
     this.lastSeenAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
-  DevicesCompanion.insert({
+  UserDevicesCompanion.insert({
     this.id = const Value.absent(),
-    this.routerModelId = const Value.absent(),
-    this.firmwareId = const Value.absent(),
-    required String ipAddress,
-    this.macAddress = const Value.absent(),
-    this.alias = const Value.absent(),
-    this.credentialsEncrypted = const Value.absent(),
-    this.lastFingerprintId = const Value.absent(),
-    this.isVerified = const Value.absent(),
+    required int brandId,
+    this.routerModel = const Value.absent(),
+    this.dns = const Value.absent(),
+    this.endpointId = const Value.absent(),
     this.lastSeenAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
-  }) : ipAddress = Value(ipAddress);
-  static Insertable<Device> custom({
+  }) : brandId = Value(brandId);
+  static Insertable<UserDevice> custom({
     Expression<int>? id,
-    Expression<int>? routerModelId,
-    Expression<int>? firmwareId,
-    Expression<String>? ipAddress,
-    Expression<String>? macAddress,
-    Expression<String>? alias,
-    Expression<String>? credentialsEncrypted,
-    Expression<int>? lastFingerprintId,
-    Expression<bool>? isVerified,
+    Expression<int>? brandId,
+    Expression<String>? routerModel,
+    Expression<String>? dns,
+    Expression<int>? endpointId,
     Expression<DateTime>? lastSeenAt,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (routerModelId != null) 'router_model_id': routerModelId,
-      if (firmwareId != null) 'firmware_id': firmwareId,
-      if (ipAddress != null) 'ip_address': ipAddress,
-      if (macAddress != null) 'mac_address': macAddress,
-      if (alias != null) 'alias': alias,
-      if (credentialsEncrypted != null)
-        'credentials_encrypted': credentialsEncrypted,
-      if (lastFingerprintId != null) 'last_fingerprint_id': lastFingerprintId,
-      if (isVerified != null) 'is_verified': isVerified,
+      if (brandId != null) 'brand_id': brandId,
+      if (routerModel != null) 'router_model': routerModel,
+      if (dns != null) 'dns': dns,
+      if (endpointId != null) 'endpoint_id': endpointId,
       if (lastSeenAt != null) 'last_seen_at': lastSeenAt,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
-  DevicesCompanion copyWith({
+  UserDevicesCompanion copyWith({
     Value<int>? id,
-    Value<int?>? routerModelId,
-    Value<int?>? firmwareId,
-    Value<String>? ipAddress,
-    Value<String?>? macAddress,
-    Value<String?>? alias,
-    Value<String?>? credentialsEncrypted,
-    Value<int?>? lastFingerprintId,
-    Value<bool>? isVerified,
+    Value<int>? brandId,
+    Value<String?>? routerModel,
+    Value<String?>? dns,
+    Value<int?>? endpointId,
     Value<DateTime?>? lastSeenAt,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
-    return DevicesCompanion(
+    return UserDevicesCompanion(
       id: id ?? this.id,
-      routerModelId: routerModelId ?? this.routerModelId,
-      firmwareId: firmwareId ?? this.firmwareId,
-      ipAddress: ipAddress ?? this.ipAddress,
-      macAddress: macAddress ?? this.macAddress,
-      alias: alias ?? this.alias,
-      credentialsEncrypted: credentialsEncrypted ?? this.credentialsEncrypted,
-      lastFingerprintId: lastFingerprintId ?? this.lastFingerprintId,
-      isVerified: isVerified ?? this.isVerified,
+      brandId: brandId ?? this.brandId,
+      routerModel: routerModel ?? this.routerModel,
+      dns: dns ?? this.dns,
+      endpointId: endpointId ?? this.endpointId,
       lastSeenAt: lastSeenAt ?? this.lastSeenAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -7273,31 +6427,17 @@ class DevicesCompanion extends UpdateCompanion<Device> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (routerModelId.present) {
-      map['router_model_id'] = Variable<int>(routerModelId.value);
+    if (brandId.present) {
+      map['brand_id'] = Variable<int>(brandId.value);
     }
-    if (firmwareId.present) {
-      map['firmware_id'] = Variable<int>(firmwareId.value);
+    if (routerModel.present) {
+      map['router_model'] = Variable<String>(routerModel.value);
     }
-    if (ipAddress.present) {
-      map['ip_address'] = Variable<String>(ipAddress.value);
+    if (dns.present) {
+      map['dns'] = Variable<String>(dns.value);
     }
-    if (macAddress.present) {
-      map['mac_address'] = Variable<String>(macAddress.value);
-    }
-    if (alias.present) {
-      map['alias'] = Variable<String>(alias.value);
-    }
-    if (credentialsEncrypted.present) {
-      map['credentials_encrypted'] = Variable<String>(
-        credentialsEncrypted.value,
-      );
-    }
-    if (lastFingerprintId.present) {
-      map['last_fingerprint_id'] = Variable<int>(lastFingerprintId.value);
-    }
-    if (isVerified.present) {
-      map['is_verified'] = Variable<bool>(isVerified.value);
+    if (endpointId.present) {
+      map['endpoint_id'] = Variable<int>(endpointId.value);
     }
     if (lastSeenAt.present) {
       map['last_seen_at'] = Variable<DateTime>(lastSeenAt.value);
@@ -7313,16 +6453,12 @@ class DevicesCompanion extends UpdateCompanion<Device> {
 
   @override
   String toString() {
-    return (StringBuffer('DevicesCompanion(')
+    return (StringBuffer('UserDevicesCompanion(')
           ..write('id: $id, ')
-          ..write('routerModelId: $routerModelId, ')
-          ..write('firmwareId: $firmwareId, ')
-          ..write('ipAddress: $ipAddress, ')
-          ..write('macAddress: $macAddress, ')
-          ..write('alias: $alias, ')
-          ..write('credentialsEncrypted: $credentialsEncrypted, ')
-          ..write('lastFingerprintId: $lastFingerprintId, ')
-          ..write('isVerified: $isVerified, ')
+          ..write('brandId: $brandId, ')
+          ..write('routerModel: $routerModel, ')
+          ..write('dns: $dns, ')
+          ..write('endpointId: $endpointId, ')
           ..write('lastSeenAt: $lastSeenAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -7335,7 +6471,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $BrandsTable brands = $BrandsTable(this);
-  late final $RouterModelsTable routerModels = $RouterModelsTable(this);
   late final $FirmwareTypesTable firmwareTypes = $FirmwareTypesTable(this);
   late final $ProtocolsTable protocols = $ProtocolsTable(this);
   late final $AuthenticationMethodsTable authenticationMethods =
@@ -7349,7 +6484,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $FirmwareCapabilitiesTable(this);
   late final $FingerprintsTable fingerprints = $FingerprintsTable(this);
   late final $VersionRulesTable versionRules = $VersionRulesTable(this);
-  late final $DevicesTable devices = $DevicesTable(this);
+  late final $UserDevicesTable userDevices = $UserDevicesTable(this);
   late final Index idxFirmwaresVersionSort = Index(
     'idx_firmwares_version_sort',
     'CREATE INDEX idx_firmwares_version_sort ON firmwares (version_sort)',
@@ -7358,9 +6493,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_endpoints_api_profile',
     'CREATE INDEX idx_endpoints_api_profile ON endpoints (api_profile_id)',
   );
-  late final Index idxFingerprintsRouterModel = Index(
-    'idx_fingerprints_router_model',
-    'CREATE INDEX idx_fingerprints_router_model ON fingerprints (router_model_id)',
+  late final Index idxFingerprintsBrand = Index(
+    'idx_fingerprints_brand',
+    'CREATE INDEX idx_fingerprints_brand ON fingerprints (brand_id)',
   );
   late final Index idxFingerprintsFirmware = Index(
     'idx_fingerprints_firmware',
@@ -7375,9 +6510,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'CREATE INDEX idx_version_rules_lookup ON version_rules (api_profile_id, min_version_sort, max_version_sort)',
   );
   late final BrandsDao brandsDao = BrandsDao(this as AppDatabase);
-  late final RouterModelsDao routerModelsDao = RouterModelsDao(
-    this as AppDatabase,
-  );
   late final FirmwareTypesDao firmwareTypesDao = FirmwareTypesDao(
     this as AppDatabase,
   );
@@ -7387,7 +6519,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     brands,
-    routerModels,
     firmwareTypes,
     protocols,
     authenticationMethods,
@@ -7399,10 +6530,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     firmwareCapabilities,
     fingerprints,
     versionRules,
-    devices,
+    userDevices,
     idxFirmwaresVersionSort,
     idxEndpointsApiProfile,
-    idxFingerprintsRouterModel,
+    idxFingerprintsBrand,
     idxFingerprintsFirmware,
     idxFingerprintsMatchType,
     idxVersionRulesLookup,
@@ -7413,7 +6544,6 @@ typedef $$BrandsTableCreateCompanionBuilder =
     BrandsCompanion Function({
       Value<int> id,
       required String name,
-      required String slug,
       Value<String?> website,
       Value<String?> logo,
       Value<String?> notes,
@@ -7425,7 +6555,6 @@ typedef $$BrandsTableUpdateCompanionBuilder =
     BrandsCompanion Function({
       Value<int> id,
       Value<String> name,
-      Value<String> slug,
       Value<String?> website,
       Value<String?> logo,
       Value<String?> notes,
@@ -7438,19 +6567,55 @@ final class $$BrandsTableReferences
     extends BaseReferences<_$AppDatabase, $BrandsTable, Brand> {
   $$BrandsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$RouterModelsTable, List<RouterModel>>
-  _routerModelsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.routerModels,
-    aliasName: 'brands__id__router_models__brand_id',
+  static MultiTypedResultKey<$FirmwaresTable, List<Firmware>>
+  _firmwaresRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.firmwares,
+    aliasName: 'brands__id__firmwares__brand_id',
   );
 
-  $$RouterModelsTableProcessedTableManager get routerModelsRefs {
-    final manager = $$RouterModelsTableTableManager(
+  $$FirmwaresTableProcessedTableManager get firmwaresRefs {
+    final manager = $$FirmwaresTableTableManager(
       $_db,
-      $_db.routerModels,
+      $_db.firmwares,
     ).filter((f) => f.brandId.id.sqlEquals($_itemColumn<int>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(_routerModelsRefsTable($_db));
+    final cache = $_typedResult.readTableOrNull(_firmwaresRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$FingerprintsTable, List<Fingerprint>>
+  _fingerprintsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.fingerprints,
+    aliasName: 'brands__id__fingerprints__brand_id',
+  );
+
+  $$FingerprintsTableProcessedTableManager get fingerprintsRefs {
+    final manager = $$FingerprintsTableTableManager(
+      $_db,
+      $_db.fingerprints,
+    ).filter((f) => f.brandId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_fingerprintsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$UserDevicesTable, List<UserDevice>>
+  _userDevicesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userDevices,
+    aliasName: 'brands__id__user_devices__brand_id',
+  );
+
+  $$UserDevicesTableProcessedTableManager get userDevicesRefs {
+    final manager = $$UserDevicesTableTableManager(
+      $_db,
+      $_db.userDevices,
+    ).filter((f) => f.brandId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_userDevicesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7473,11 +6638,6 @@ class $$BrandsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get slug => $composableBuilder(
-    column: $table.slug,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7511,22 +6671,72 @@ class $$BrandsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> routerModelsRefs(
-    Expression<bool> Function($$RouterModelsTableFilterComposer f) f,
+  Expression<bool> firmwaresRefs(
+    Expression<bool> Function($$FirmwaresTableFilterComposer f) f,
   ) {
-    final $$RouterModelsTableFilterComposer composer = $composerBuilder(
+    final $$FirmwaresTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.routerModels,
+      referencedTable: $db.firmwares,
       getReferencedColumn: (t) => t.brandId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableFilterComposer(
+          }) => $$FirmwaresTableFilterComposer(
             $db: $db,
-            $table: $db.routerModels,
+            $table: $db.firmwares,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> fingerprintsRefs(
+    Expression<bool> Function($$FingerprintsTableFilterComposer f) f,
+  ) {
+    final $$FingerprintsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.fingerprints,
+      getReferencedColumn: (t) => t.brandId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FingerprintsTableFilterComposer(
+            $db: $db,
+            $table: $db.fingerprints,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> userDevicesRefs(
+    Expression<bool> Function($$UserDevicesTableFilterComposer f) f,
+  ) {
+    final $$UserDevicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userDevices,
+      getReferencedColumn: (t) => t.brandId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserDevicesTableFilterComposer(
+            $db: $db,
+            $table: $db.userDevices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7553,11 +6763,6 @@ class $$BrandsTableOrderingComposer
 
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get slug => $composableBuilder(
-    column: $table.slug,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -7607,9 +6812,6 @@ class $$BrandsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get slug =>
-      $composableBuilder(column: $table.slug, builder: (column) => column);
-
   GeneratedColumn<String> get website =>
       $composableBuilder(column: $table.website, builder: (column) => column);
 
@@ -7628,536 +6830,6 @@ class $$BrandsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  Expression<T> routerModelsRefs<T extends Object>(
-    Expression<T> Function($$RouterModelsTableAnnotationComposer a) f,
-  ) {
-    final $$RouterModelsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.routerModels,
-      getReferencedColumn: (t) => t.brandId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.routerModels,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$BrandsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $BrandsTable,
-          Brand,
-          $$BrandsTableFilterComposer,
-          $$BrandsTableOrderingComposer,
-          $$BrandsTableAnnotationComposer,
-          $$BrandsTableCreateCompanionBuilder,
-          $$BrandsTableUpdateCompanionBuilder,
-          (Brand, $$BrandsTableReferences),
-          Brand,
-          PrefetchHooks Function({bool routerModelsRefs})
-        > {
-  $$BrandsTableTableManager(_$AppDatabase db, $BrandsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$BrandsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$BrandsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$BrandsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<String> slug = const Value.absent(),
-                Value<String?> website = const Value.absent(),
-                Value<String?> logo = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<String?> dns = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-              }) => BrandsCompanion(
-                id: id,
-                name: name,
-                slug: slug,
-                website: website,
-                logo: logo,
-                notes: notes,
-                dns: dns,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String name,
-                required String slug,
-                Value<String?> website = const Value.absent(),
-                Value<String?> logo = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<String?> dns = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-              }) => BrandsCompanion.insert(
-                id: id,
-                name: name,
-                slug: slug,
-                website: website,
-                logo: logo,
-                notes: notes,
-                dns: dns,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) =>
-                    (e.readTable(table), $$BrandsTableReferences(db, table, e)),
-              )
-              .toList(),
-          prefetchHooksCallback: ({routerModelsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (routerModelsRefs) db.routerModels],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (routerModelsRefs)
-                    await $_getPrefetchedData<Brand, $BrandsTable, RouterModel>(
-                      currentTable: table,
-                      referencedTable: $$BrandsTableReferences
-                          ._routerModelsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$BrandsTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).routerModelsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.brandId == item.id),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$BrandsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $BrandsTable,
-      Brand,
-      $$BrandsTableFilterComposer,
-      $$BrandsTableOrderingComposer,
-      $$BrandsTableAnnotationComposer,
-      $$BrandsTableCreateCompanionBuilder,
-      $$BrandsTableUpdateCompanionBuilder,
-      (Brand, $$BrandsTableReferences),
-      Brand,
-      PrefetchHooks Function({bool routerModelsRefs})
-    >;
-typedef $$RouterModelsTableCreateCompanionBuilder =
-    RouterModelsCompanion Function({
-      Value<int> id,
-      required int brandId,
-      required String name,
-      required String modelNumber,
-      Value<String?> hardwareVersion,
-      Value<int?> releaseYear,
-      Value<String?> notes,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-    });
-typedef $$RouterModelsTableUpdateCompanionBuilder =
-    RouterModelsCompanion Function({
-      Value<int> id,
-      Value<int> brandId,
-      Value<String> name,
-      Value<String> modelNumber,
-      Value<String?> hardwareVersion,
-      Value<int?> releaseYear,
-      Value<String?> notes,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-    });
-
-final class $$RouterModelsTableReferences
-    extends BaseReferences<_$AppDatabase, $RouterModelsTable, RouterModel> {
-  $$RouterModelsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $BrandsTable _brandIdTable(_$AppDatabase db) =>
-      db.brands.createAlias('router_models__brand_id__brands__id');
-
-  $$BrandsTableProcessedTableManager get brandId {
-    final $_column = $_itemColumn<int>('brand_id')!;
-
-    final manager = $$BrandsTableTableManager(
-      $_db,
-      $_db.brands,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_brandIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$FirmwaresTable, List<Firmware>>
-  _firmwaresRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.firmwares,
-    aliasName: 'router_models__id__firmwares__router_model_id',
-  );
-
-  $$FirmwaresTableProcessedTableManager get firmwaresRefs {
-    final manager = $$FirmwaresTableTableManager(
-      $_db,
-      $_db.firmwares,
-    ).filter((f) => f.routerModelId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_firmwaresRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$FingerprintsTable, List<Fingerprint>>
-  _fingerprintsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.fingerprints,
-    aliasName: 'router_models__id__fingerprints__router_model_id',
-  );
-
-  $$FingerprintsTableProcessedTableManager get fingerprintsRefs {
-    final manager = $$FingerprintsTableTableManager(
-      $_db,
-      $_db.fingerprints,
-    ).filter((f) => f.routerModelId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_fingerprintsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$DevicesTable, List<Device>> _devicesRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.devices,
-    aliasName: 'router_models__id__devices__router_model_id',
-  );
-
-  $$DevicesTableProcessedTableManager get devicesRefs {
-    final manager = $$DevicesTableTableManager(
-      $_db,
-      $_db.devices,
-    ).filter((f) => f.routerModelId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_devicesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$RouterModelsTableFilterComposer
-    extends Composer<_$AppDatabase, $RouterModelsTable> {
-  $$RouterModelsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get modelNumber => $composableBuilder(
-    column: $table.modelNumber,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get hardwareVersion => $composableBuilder(
-    column: $table.hardwareVersion,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get releaseYear => $composableBuilder(
-    column: $table.releaseYear,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$BrandsTableFilterComposer get brandId {
-    final $$BrandsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.brandId,
-      referencedTable: $db.brands,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BrandsTableFilterComposer(
-            $db: $db,
-            $table: $db.brands,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<bool> firmwaresRefs(
-    Expression<bool> Function($$FirmwaresTableFilterComposer f) f,
-  ) {
-    final $$FirmwaresTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.firmwares,
-      getReferencedColumn: (t) => t.routerModelId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FirmwaresTableFilterComposer(
-            $db: $db,
-            $table: $db.firmwares,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> fingerprintsRefs(
-    Expression<bool> Function($$FingerprintsTableFilterComposer f) f,
-  ) {
-    final $$FingerprintsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.fingerprints,
-      getReferencedColumn: (t) => t.routerModelId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FingerprintsTableFilterComposer(
-            $db: $db,
-            $table: $db.fingerprints,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> devicesRefs(
-    Expression<bool> Function($$DevicesTableFilterComposer f) f,
-  ) {
-    final $$DevicesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.devices,
-      getReferencedColumn: (t) => t.routerModelId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DevicesTableFilterComposer(
-            $db: $db,
-            $table: $db.devices,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$RouterModelsTableOrderingComposer
-    extends Composer<_$AppDatabase, $RouterModelsTable> {
-  $$RouterModelsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get modelNumber => $composableBuilder(
-    column: $table.modelNumber,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get hardwareVersion => $composableBuilder(
-    column: $table.hardwareVersion,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get releaseYear => $composableBuilder(
-    column: $table.releaseYear,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$BrandsTableOrderingComposer get brandId {
-    final $$BrandsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.brandId,
-      referencedTable: $db.brands,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BrandsTableOrderingComposer(
-            $db: $db,
-            $table: $db.brands,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$RouterModelsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $RouterModelsTable> {
-  $$RouterModelsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get modelNumber => $composableBuilder(
-    column: $table.modelNumber,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get hardwareVersion => $composableBuilder(
-    column: $table.hardwareVersion,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get releaseYear => $composableBuilder(
-    column: $table.releaseYear,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  $$BrandsTableAnnotationComposer get brandId {
-    final $$BrandsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.brandId,
-      referencedTable: $db.brands,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BrandsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.brands,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
   Expression<T> firmwaresRefs<T extends Object>(
     Expression<T> Function($$FirmwaresTableAnnotationComposer a) f,
   ) {
@@ -8165,7 +6837,7 @@ class $$RouterModelsTableAnnotationComposer
       composer: this,
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.firmwares,
-      getReferencedColumn: (t) => t.routerModelId,
+      getReferencedColumn: (t) => t.brandId,
       builder:
           (
             joinBuilder, {
@@ -8190,7 +6862,7 @@ class $$RouterModelsTableAnnotationComposer
       composer: this,
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.fingerprints,
-      getReferencedColumn: (t) => t.routerModelId,
+      getReferencedColumn: (t) => t.brandId,
       builder:
           (
             joinBuilder, {
@@ -8208,22 +6880,22 @@ class $$RouterModelsTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> devicesRefs<T extends Object>(
-    Expression<T> Function($$DevicesTableAnnotationComposer a) f,
+  Expression<T> userDevicesRefs<T extends Object>(
+    Expression<T> Function($$UserDevicesTableAnnotationComposer a) f,
   ) {
-    final $$DevicesTableAnnotationComposer composer = $composerBuilder(
+    final $$UserDevicesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.devices,
-      getReferencedColumn: (t) => t.routerModelId,
+      referencedTable: $db.userDevices,
+      getReferencedColumn: (t) => t.brandId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$DevicesTableAnnotationComposer(
+          }) => $$UserDevicesTableAnnotationComposer(
             $db: $db,
-            $table: $db.devices,
+            $table: $db.userDevices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8234,199 +6906,158 @@ class $$RouterModelsTableAnnotationComposer
   }
 }
 
-class $$RouterModelsTableTableManager
+class $$BrandsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $RouterModelsTable,
-          RouterModel,
-          $$RouterModelsTableFilterComposer,
-          $$RouterModelsTableOrderingComposer,
-          $$RouterModelsTableAnnotationComposer,
-          $$RouterModelsTableCreateCompanionBuilder,
-          $$RouterModelsTableUpdateCompanionBuilder,
-          (RouterModel, $$RouterModelsTableReferences),
-          RouterModel,
+          $BrandsTable,
+          Brand,
+          $$BrandsTableFilterComposer,
+          $$BrandsTableOrderingComposer,
+          $$BrandsTableAnnotationComposer,
+          $$BrandsTableCreateCompanionBuilder,
+          $$BrandsTableUpdateCompanionBuilder,
+          (Brand, $$BrandsTableReferences),
+          Brand,
           PrefetchHooks Function({
-            bool brandId,
             bool firmwaresRefs,
             bool fingerprintsRefs,
-            bool devicesRefs,
+            bool userDevicesRefs,
           })
         > {
-  $$RouterModelsTableTableManager(_$AppDatabase db, $RouterModelsTable table)
+  $$BrandsTableTableManager(_$AppDatabase db, $BrandsTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$RouterModelsTableFilterComposer($db: db, $table: table),
+              $$BrandsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$RouterModelsTableOrderingComposer($db: db, $table: table),
+              $$BrandsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$RouterModelsTableAnnotationComposer($db: db, $table: table),
+              $$BrandsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> brandId = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<String> modelNumber = const Value.absent(),
-                Value<String?> hardwareVersion = const Value.absent(),
-                Value<int?> releaseYear = const Value.absent(),
+                Value<String?> website = const Value.absent(),
+                Value<String?> logo = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> dns = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
-              }) => RouterModelsCompanion(
+              }) => BrandsCompanion(
                 id: id,
-                brandId: brandId,
                 name: name,
-                modelNumber: modelNumber,
-                hardwareVersion: hardwareVersion,
-                releaseYear: releaseYear,
+                website: website,
+                logo: logo,
                 notes: notes,
+                dns: dns,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int brandId,
                 required String name,
-                required String modelNumber,
-                Value<String?> hardwareVersion = const Value.absent(),
-                Value<int?> releaseYear = const Value.absent(),
+                Value<String?> website = const Value.absent(),
+                Value<String?> logo = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> dns = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
-              }) => RouterModelsCompanion.insert(
+              }) => BrandsCompanion.insert(
                 id: id,
-                brandId: brandId,
                 name: name,
-                modelNumber: modelNumber,
-                hardwareVersion: hardwareVersion,
-                releaseYear: releaseYear,
+                website: website,
+                logo: logo,
                 notes: notes,
+                dns: dns,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable(table),
-                  $$RouterModelsTableReferences(db, table, e),
-                ),
+                (e) =>
+                    (e.readTable(table), $$BrandsTableReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback:
               ({
-                brandId = false,
                 firmwaresRefs = false,
                 fingerprintsRefs = false,
-                devicesRefs = false,
+                userDevicesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (firmwaresRefs) db.firmwares,
                     if (fingerprintsRefs) db.fingerprints,
-                    if (devicesRefs) db.devices,
+                    if (userDevicesRefs) db.userDevices,
                   ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (brandId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.brandId,
-                                    referencedTable:
-                                        $$RouterModelsTableReferences
-                                            ._brandIdTable(db),
-                                    referencedColumn:
-                                        $$RouterModelsTableReferences
-                                            ._brandIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
+                  addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (firmwaresRefs)
                         await $_getPrefetchedData<
-                          RouterModel,
-                          $RouterModelsTable,
+                          Brand,
+                          $BrandsTable,
                           Firmware
                         >(
                           currentTable: table,
-                          referencedTable: $$RouterModelsTableReferences
+                          referencedTable: $$BrandsTableReferences
                               ._firmwaresRefsTable(db),
                           managerFromTypedResult: (p0) =>
-                              $$RouterModelsTableReferences(
+                              $$BrandsTableReferences(
                                 db,
                                 table,
                                 p0,
                               ).firmwaresRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.routerModelId == item.id,
+                                (e) => e.brandId == item.id,
                               ),
                           typedResults: items,
                         ),
                       if (fingerprintsRefs)
                         await $_getPrefetchedData<
-                          RouterModel,
-                          $RouterModelsTable,
+                          Brand,
+                          $BrandsTable,
                           Fingerprint
                         >(
                           currentTable: table,
-                          referencedTable: $$RouterModelsTableReferences
+                          referencedTable: $$BrandsTableReferences
                               ._fingerprintsRefsTable(db),
                           managerFromTypedResult: (p0) =>
-                              $$RouterModelsTableReferences(
+                              $$BrandsTableReferences(
                                 db,
                                 table,
                                 p0,
                               ).fingerprintsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.routerModelId == item.id,
+                                (e) => e.brandId == item.id,
                               ),
                           typedResults: items,
                         ),
-                      if (devicesRefs)
+                      if (userDevicesRefs)
                         await $_getPrefetchedData<
-                          RouterModel,
-                          $RouterModelsTable,
-                          Device
+                          Brand,
+                          $BrandsTable,
+                          UserDevice
                         >(
                           currentTable: table,
-                          referencedTable: $$RouterModelsTableReferences
-                              ._devicesRefsTable(db),
+                          referencedTable: $$BrandsTableReferences
+                              ._userDevicesRefsTable(db),
                           managerFromTypedResult: (p0) =>
-                              $$RouterModelsTableReferences(
+                              $$BrandsTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).devicesRefs,
+                              ).userDevicesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.routerModelId == item.id,
+                                (e) => e.brandId == item.id,
                               ),
                           typedResults: items,
                         ),
@@ -8438,23 +7069,22 @@ class $$RouterModelsTableTableManager
       );
 }
 
-typedef $$RouterModelsTableProcessedTableManager =
+typedef $$BrandsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $RouterModelsTable,
-      RouterModel,
-      $$RouterModelsTableFilterComposer,
-      $$RouterModelsTableOrderingComposer,
-      $$RouterModelsTableAnnotationComposer,
-      $$RouterModelsTableCreateCompanionBuilder,
-      $$RouterModelsTableUpdateCompanionBuilder,
-      (RouterModel, $$RouterModelsTableReferences),
-      RouterModel,
+      $BrandsTable,
+      Brand,
+      $$BrandsTableFilterComposer,
+      $$BrandsTableOrderingComposer,
+      $$BrandsTableAnnotationComposer,
+      $$BrandsTableCreateCompanionBuilder,
+      $$BrandsTableUpdateCompanionBuilder,
+      (Brand, $$BrandsTableReferences),
+      Brand,
       PrefetchHooks Function({
-        bool brandId,
         bool firmwaresRefs,
         bool fingerprintsRefs,
-        bool devicesRefs,
+        bool userDevicesRefs,
       })
     >;
 typedef $$FirmwareTypesTableCreateCompanionBuilder =
@@ -10749,7 +9379,7 @@ typedef $$ApiProfilesTableProcessedTableManager =
 typedef $$FirmwaresTableCreateCompanionBuilder =
     FirmwaresCompanion Function({
       Value<int> id,
-      required int routerModelId,
+      required int brandId,
       required int firmwareTypeId,
       required int apiProfileId,
       required String version,
@@ -10767,7 +9397,7 @@ typedef $$FirmwaresTableCreateCompanionBuilder =
 typedef $$FirmwaresTableUpdateCompanionBuilder =
     FirmwaresCompanion Function({
       Value<int> id,
-      Value<int> routerModelId,
+      Value<int> brandId,
       Value<int> firmwareTypeId,
       Value<int> apiProfileId,
       Value<String> version,
@@ -10787,18 +9417,17 @@ final class $$FirmwaresTableReferences
     extends BaseReferences<_$AppDatabase, $FirmwaresTable, Firmware> {
   $$FirmwaresTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $RouterModelsTable _routerModelIdTable(_$AppDatabase db) => db
-      .routerModels
-      .createAlias('firmwares__router_model_id__router_models__id');
+  static $BrandsTable _brandIdTable(_$AppDatabase db) =>
+      db.brands.createAlias('firmwares__brand_id__brands__id');
 
-  $$RouterModelsTableProcessedTableManager get routerModelId {
-    final $_column = $_itemColumn<int>('router_model_id')!;
+  $$BrandsTableProcessedTableManager get brandId {
+    final $_column = $_itemColumn<int>('brand_id')!;
 
-    final manager = $$RouterModelsTableTableManager(
+    final manager = $$BrandsTableTableManager(
       $_db,
-      $_db.routerModels,
+      $_db.brands,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_routerModelIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_brandIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -10882,25 +9511,6 @@ final class $$FirmwaresTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
-
-  static MultiTypedResultKey<$DevicesTable, List<Device>> _devicesRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.devices,
-    aliasName: 'firmwares__id__devices__firmware_id',
-  );
-
-  $$DevicesTableProcessedTableManager get devicesRefs {
-    final manager = $$DevicesTableTableManager(
-      $_db,
-      $_db.devices,
-    ).filter((f) => f.firmwareId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_devicesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 }
 
 class $$FirmwaresTableFilterComposer
@@ -10972,20 +9582,20 @@ class $$FirmwaresTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$RouterModelsTableFilterComposer get routerModelId {
-    final $$RouterModelsTableFilterComposer composer = $composerBuilder(
+  $$BrandsTableFilterComposer get brandId {
+    final $$BrandsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableFilterComposer(
+          }) => $$BrandsTableFilterComposer(
             $db: $db,
-            $table: $db.routerModels,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11090,31 +9700,6 @@ class $$FirmwaresTableFilterComposer
     );
     return f(composer);
   }
-
-  Expression<bool> devicesRefs(
-    Expression<bool> Function($$DevicesTableFilterComposer f) f,
-  ) {
-    final $$DevicesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.devices,
-      getReferencedColumn: (t) => t.firmwareId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DevicesTableFilterComposer(
-            $db: $db,
-            $table: $db.devices,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$FirmwaresTableOrderingComposer
@@ -11186,20 +9771,20 @@ class $$FirmwaresTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$RouterModelsTableOrderingComposer get routerModelId {
-    final $$RouterModelsTableOrderingComposer composer = $composerBuilder(
+  $$BrandsTableOrderingComposer get brandId {
+    final $$BrandsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableOrderingComposer(
+          }) => $$BrandsTableOrderingComposer(
             $db: $db,
-            $table: $db.routerModels,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11313,20 +9898,20 @@ class $$FirmwaresTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  $$RouterModelsTableAnnotationComposer get routerModelId {
-    final $$RouterModelsTableAnnotationComposer composer = $composerBuilder(
+  $$BrandsTableAnnotationComposer get brandId {
+    final $$BrandsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableAnnotationComposer(
+          }) => $$BrandsTableAnnotationComposer(
             $db: $db,
-            $table: $db.routerModels,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11432,31 +10017,6 @@ class $$FirmwaresTableAnnotationComposer
     );
     return f(composer);
   }
-
-  Expression<T> devicesRefs<T extends Object>(
-    Expression<T> Function($$DevicesTableAnnotationComposer a) f,
-  ) {
-    final $$DevicesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.devices,
-      getReferencedColumn: (t) => t.firmwareId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DevicesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.devices,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$FirmwaresTableTableManager
@@ -11473,12 +10033,11 @@ class $$FirmwaresTableTableManager
           (Firmware, $$FirmwaresTableReferences),
           Firmware,
           PrefetchHooks Function({
-            bool routerModelId,
+            bool brandId,
             bool firmwareTypeId,
             bool apiProfileId,
             bool firmwareCapabilitiesRefs,
             bool fingerprintsRefs,
-            bool devicesRefs,
           })
         > {
   $$FirmwaresTableTableManager(_$AppDatabase db, $FirmwaresTable table)
@@ -11495,7 +10054,7 @@ class $$FirmwaresTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> routerModelId = const Value.absent(),
+                Value<int> brandId = const Value.absent(),
                 Value<int> firmwareTypeId = const Value.absent(),
                 Value<int> apiProfileId = const Value.absent(),
                 Value<String> version = const Value.absent(),
@@ -11511,7 +10070,7 @@ class $$FirmwaresTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => FirmwaresCompanion(
                 id: id,
-                routerModelId: routerModelId,
+                brandId: brandId,
                 firmwareTypeId: firmwareTypeId,
                 apiProfileId: apiProfileId,
                 version: version,
@@ -11529,7 +10088,7 @@ class $$FirmwaresTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int routerModelId,
+                required int brandId,
                 required int firmwareTypeId,
                 required int apiProfileId,
                 required String version,
@@ -11545,7 +10104,7 @@ class $$FirmwaresTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => FirmwaresCompanion.insert(
                 id: id,
-                routerModelId: routerModelId,
+                brandId: brandId,
                 firmwareTypeId: firmwareTypeId,
                 apiProfileId: apiProfileId,
                 version: version,
@@ -11570,19 +10129,17 @@ class $$FirmwaresTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                routerModelId = false,
+                brandId = false,
                 firmwareTypeId = false,
                 apiProfileId = false,
                 firmwareCapabilitiesRefs = false,
                 fingerprintsRefs = false,
-                devicesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (firmwareCapabilitiesRefs) db.firmwareCapabilities,
                     if (fingerprintsRefs) db.fingerprints,
-                    if (devicesRefs) db.devices,
                   ],
                   addJoins:
                       <
@@ -11600,15 +10157,15 @@ class $$FirmwaresTableTableManager
                           dynamic
                         >
                       >(state) {
-                        if (routerModelId) {
+                        if (brandId) {
                           state =
                               state.withJoin(
                                     currentTable: table,
-                                    currentColumn: table.routerModelId,
+                                    currentColumn: table.brandId,
                                     referencedTable: $$FirmwaresTableReferences
-                                        ._routerModelIdTable(db),
+                                        ._brandIdTable(db),
                                     referencedColumn: $$FirmwaresTableReferences
-                                        ._routerModelIdTable(db)
+                                        ._brandIdTable(db)
                                         .id,
                                   )
                                   as T;
@@ -11686,27 +10243,6 @@ class $$FirmwaresTableTableManager
                               ),
                           typedResults: items,
                         ),
-                      if (devicesRefs)
-                        await $_getPrefetchedData<
-                          Firmware,
-                          $FirmwaresTable,
-                          Device
-                        >(
-                          currentTable: table,
-                          referencedTable: $$FirmwaresTableReferences
-                              ._devicesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$FirmwaresTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).devicesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.firmwareId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
                     ];
                   },
                 );
@@ -11728,12 +10264,11 @@ typedef $$FirmwaresTableProcessedTableManager =
       (Firmware, $$FirmwaresTableReferences),
       Firmware,
       PrefetchHooks Function({
-        bool routerModelId,
+        bool brandId,
         bool firmwareTypeId,
         bool apiProfileId,
         bool firmwareCapabilitiesRefs,
         bool fingerprintsRefs,
-        bool devicesRefs,
       })
     >;
 typedef $$EndpointsTableCreateCompanionBuilder =
@@ -12839,7 +11374,7 @@ typedef $$FirmwareCapabilitiesTableProcessedTableManager =
 typedef $$FingerprintsTableCreateCompanionBuilder =
     FingerprintsCompanion Function({
       Value<int> id,
-      Value<int?> routerModelId,
+      Value<int?> brandId,
       Value<int?> firmwareId,
       required String matchType,
       required String matchValue,
@@ -12851,7 +11386,7 @@ typedef $$FingerprintsTableCreateCompanionBuilder =
 typedef $$FingerprintsTableUpdateCompanionBuilder =
     FingerprintsCompanion Function({
       Value<int> id,
-      Value<int?> routerModelId,
+      Value<int?> brandId,
       Value<int?> firmwareId,
       Value<String> matchType,
       Value<String> matchValue,
@@ -12865,18 +11400,17 @@ final class $$FingerprintsTableReferences
     extends BaseReferences<_$AppDatabase, $FingerprintsTable, Fingerprint> {
   $$FingerprintsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $RouterModelsTable _routerModelIdTable(_$AppDatabase db) => db
-      .routerModels
-      .createAlias('fingerprints__router_model_id__router_models__id');
+  static $BrandsTable _brandIdTable(_$AppDatabase db) =>
+      db.brands.createAlias('fingerprints__brand_id__brands__id');
 
-  $$RouterModelsTableProcessedTableManager? get routerModelId {
-    final $_column = $_itemColumn<int>('router_model_id');
+  $$BrandsTableProcessedTableManager? get brandId {
+    final $_column = $_itemColumn<int>('brand_id');
     if ($_column == null) return null;
-    final manager = $$RouterModelsTableTableManager(
+    final manager = $$BrandsTableTableManager(
       $_db,
-      $_db.routerModels,
+      $_db.brands,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_routerModelIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_brandIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -12897,25 +11431,6 @@ final class $$FingerprintsTableReferences
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$DevicesTable, List<Device>> _devicesRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.devices,
-    aliasName: 'fingerprints__id__devices__last_fingerprint_id',
-  );
-
-  $$DevicesTableProcessedTableManager get devicesRefs {
-    final manager = $$DevicesTableTableManager(
-      $_db,
-      $_db.devices,
-    ).filter((f) => f.lastFingerprintId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_devicesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 }
@@ -12964,20 +11479,20 @@ class $$FingerprintsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$RouterModelsTableFilterComposer get routerModelId {
-    final $$RouterModelsTableFilterComposer composer = $composerBuilder(
+  $$BrandsTableFilterComposer get brandId {
+    final $$BrandsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableFilterComposer(
+          }) => $$BrandsTableFilterComposer(
             $db: $db,
-            $table: $db.routerModels,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -13008,31 +11523,6 @@ class $$FingerprintsTableFilterComposer
           ),
     );
     return composer;
-  }
-
-  Expression<bool> devicesRefs(
-    Expression<bool> Function($$DevicesTableFilterComposer f) f,
-  ) {
-    final $$DevicesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.devices,
-      getReferencedColumn: (t) => t.lastFingerprintId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DevicesTableFilterComposer(
-            $db: $db,
-            $table: $db.devices,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
   }
 }
 
@@ -13080,20 +11570,20 @@ class $$FingerprintsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$RouterModelsTableOrderingComposer get routerModelId {
-    final $$RouterModelsTableOrderingComposer composer = $composerBuilder(
+  $$BrandsTableOrderingComposer get brandId {
+    final $$BrandsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableOrderingComposer(
+          }) => $$BrandsTableOrderingComposer(
             $db: $db,
-            $table: $db.routerModels,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -13161,20 +11651,20 @@ class $$FingerprintsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  $$RouterModelsTableAnnotationComposer get routerModelId {
-    final $$RouterModelsTableAnnotationComposer composer = $composerBuilder(
+  $$BrandsTableAnnotationComposer get brandId {
+    final $$BrandsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableAnnotationComposer(
+          }) => $$BrandsTableAnnotationComposer(
             $db: $db,
-            $table: $db.routerModels,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -13206,31 +11696,6 @@ class $$FingerprintsTableAnnotationComposer
     );
     return composer;
   }
-
-  Expression<T> devicesRefs<T extends Object>(
-    Expression<T> Function($$DevicesTableAnnotationComposer a) f,
-  ) {
-    final $$DevicesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.devices,
-      getReferencedColumn: (t) => t.lastFingerprintId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DevicesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.devices,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$FingerprintsTableTableManager
@@ -13246,11 +11711,7 @@ class $$FingerprintsTableTableManager
           $$FingerprintsTableUpdateCompanionBuilder,
           (Fingerprint, $$FingerprintsTableReferences),
           Fingerprint,
-          PrefetchHooks Function({
-            bool routerModelId,
-            bool firmwareId,
-            bool devicesRefs,
-          })
+          PrefetchHooks Function({bool brandId, bool firmwareId})
         > {
   $$FingerprintsTableTableManager(_$AppDatabase db, $FingerprintsTable table)
     : super(
@@ -13266,7 +11727,7 @@ class $$FingerprintsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int?> routerModelId = const Value.absent(),
+                Value<int?> brandId = const Value.absent(),
                 Value<int?> firmwareId = const Value.absent(),
                 Value<String> matchType = const Value.absent(),
                 Value<String> matchValue = const Value.absent(),
@@ -13276,7 +11737,7 @@ class $$FingerprintsTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => FingerprintsCompanion(
                 id: id,
-                routerModelId: routerModelId,
+                brandId: brandId,
                 firmwareId: firmwareId,
                 matchType: matchType,
                 matchValue: matchValue,
@@ -13288,7 +11749,7 @@ class $$FingerprintsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int?> routerModelId = const Value.absent(),
+                Value<int?> brandId = const Value.absent(),
                 Value<int?> firmwareId = const Value.absent(),
                 required String matchType,
                 required String matchValue,
@@ -13298,7 +11759,7 @@ class $$FingerprintsTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => FingerprintsCompanion.insert(
                 id: id,
-                routerModelId: routerModelId,
+                brandId: brandId,
                 firmwareId: firmwareId,
                 matchType: matchType,
                 matchValue: matchValue,
@@ -13315,91 +11776,60 @@ class $$FingerprintsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({
-                routerModelId = false,
-                firmwareId = false,
-                devicesRefs = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [if (devicesRefs) db.devices],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (routerModelId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.routerModelId,
-                                    referencedTable:
-                                        $$FingerprintsTableReferences
-                                            ._routerModelIdTable(db),
-                                    referencedColumn:
-                                        $$FingerprintsTableReferences
-                                            ._routerModelIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-                        if (firmwareId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.firmwareId,
-                                    referencedTable:
-                                        $$FingerprintsTableReferences
-                                            ._firmwareIdTable(db),
-                                    referencedColumn:
-                                        $$FingerprintsTableReferences
-                                            ._firmwareIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
+          prefetchHooksCallback: ({brandId = false, firmwareId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (brandId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.brandId,
+                                referencedTable: $$FingerprintsTableReferences
+                                    ._brandIdTable(db),
+                                referencedColumn: $$FingerprintsTableReferences
+                                    ._brandIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (firmwareId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.firmwareId,
+                                referencedTable: $$FingerprintsTableReferences
+                                    ._firmwareIdTable(db),
+                                referencedColumn: $$FingerprintsTableReferences
+                                    ._firmwareIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
 
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (devicesRefs)
-                        await $_getPrefetchedData<
-                          Fingerprint,
-                          $FingerprintsTable,
-                          Device
-                        >(
-                          currentTable: table,
-                          referencedTable: $$FingerprintsTableReferences
-                              ._devicesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$FingerprintsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).devicesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.lastFingerprintId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
+                    return state;
                   },
-                );
+              getPrefetchedDataCallback: (items) async {
+                return [];
               },
+            );
+          },
         ),
       );
 }
@@ -13416,11 +11846,7 @@ typedef $$FingerprintsTableProcessedTableManager =
       $$FingerprintsTableUpdateCompanionBuilder,
       (Fingerprint, $$FingerprintsTableReferences),
       Fingerprint,
-      PrefetchHooks Function({
-        bool routerModelId,
-        bool firmwareId,
-        bool devicesRefs,
-      })
+      PrefetchHooks Function({bool brandId, bool firmwareId})
     >;
 typedef $$VersionRulesTableCreateCompanionBuilder =
     VersionRulesCompanion Function({
@@ -13862,88 +12288,44 @@ typedef $$VersionRulesTableProcessedTableManager =
       VersionRule,
       PrefetchHooks Function({bool apiProfileId, bool driverId})
     >;
-typedef $$DevicesTableCreateCompanionBuilder =
-    DevicesCompanion Function({
+typedef $$UserDevicesTableCreateCompanionBuilder =
+    UserDevicesCompanion Function({
       Value<int> id,
-      Value<int?> routerModelId,
-      Value<int?> firmwareId,
-      required String ipAddress,
-      Value<String?> macAddress,
-      Value<String?> alias,
-      Value<String?> credentialsEncrypted,
-      Value<int?> lastFingerprintId,
-      Value<bool> isVerified,
+      required int brandId,
+      Value<String?> routerModel,
+      Value<String?> dns,
+      Value<int?> endpointId,
       Value<DateTime?> lastSeenAt,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
-typedef $$DevicesTableUpdateCompanionBuilder =
-    DevicesCompanion Function({
+typedef $$UserDevicesTableUpdateCompanionBuilder =
+    UserDevicesCompanion Function({
       Value<int> id,
-      Value<int?> routerModelId,
-      Value<int?> firmwareId,
-      Value<String> ipAddress,
-      Value<String?> macAddress,
-      Value<String?> alias,
-      Value<String?> credentialsEncrypted,
-      Value<int?> lastFingerprintId,
-      Value<bool> isVerified,
+      Value<int> brandId,
+      Value<String?> routerModel,
+      Value<String?> dns,
+      Value<int?> endpointId,
       Value<DateTime?> lastSeenAt,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
 
-final class $$DevicesTableReferences
-    extends BaseReferences<_$AppDatabase, $DevicesTable, Device> {
-  $$DevicesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $$UserDevicesTableReferences
+    extends BaseReferences<_$AppDatabase, $UserDevicesTable, UserDevice> {
+  $$UserDevicesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $RouterModelsTable _routerModelIdTable(_$AppDatabase db) => db
-      .routerModels
-      .createAlias('devices__router_model_id__router_models__id');
+  static $BrandsTable _brandIdTable(_$AppDatabase db) =>
+      db.brands.createAlias('user_devices__brand_id__brands__id');
 
-  $$RouterModelsTableProcessedTableManager? get routerModelId {
-    final $_column = $_itemColumn<int>('router_model_id');
-    if ($_column == null) return null;
-    final manager = $$RouterModelsTableTableManager(
+  $$BrandsTableProcessedTableManager get brandId {
+    final $_column = $_itemColumn<int>('brand_id')!;
+
+    final manager = $$BrandsTableTableManager(
       $_db,
-      $_db.routerModels,
+      $_db.brands,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_routerModelIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $FirmwaresTable _firmwareIdTable(_$AppDatabase db) =>
-      db.firmwares.createAlias('devices__firmware_id__firmwares__id');
-
-  $$FirmwaresTableProcessedTableManager? get firmwareId {
-    final $_column = $_itemColumn<int>('firmware_id');
-    if ($_column == null) return null;
-    final manager = $$FirmwaresTableTableManager(
-      $_db,
-      $_db.firmwares,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_firmwareIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $FingerprintsTable _lastFingerprintIdTable(_$AppDatabase db) => db
-      .fingerprints
-      .createAlias('devices__last_fingerprint_id__fingerprints__id');
-
-  $$FingerprintsTableProcessedTableManager? get lastFingerprintId {
-    final $_column = $_itemColumn<int>('last_fingerprint_id');
-    if ($_column == null) return null;
-    final manager = $$FingerprintsTableTableManager(
-      $_db,
-      $_db.fingerprints,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_lastFingerprintIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_brandIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -13951,9 +12333,9 @@ final class $$DevicesTableReferences
   }
 }
 
-class $$DevicesTableFilterComposer
-    extends Composer<_$AppDatabase, $DevicesTable> {
-  $$DevicesTableFilterComposer({
+class $$UserDevicesTableFilterComposer
+    extends Composer<_$AppDatabase, $UserDevicesTable> {
+  $$UserDevicesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -13965,28 +12347,18 @@ class $$DevicesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get ipAddress => $composableBuilder(
-    column: $table.ipAddress,
+  ColumnFilters<String> get routerModel => $composableBuilder(
+    column: $table.routerModel,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get macAddress => $composableBuilder(
-    column: $table.macAddress,
+  ColumnFilters<String> get dns => $composableBuilder(
+    column: $table.dns,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get alias => $composableBuilder(
-    column: $table.alias,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get credentialsEncrypted => $composableBuilder(
-    column: $table.credentialsEncrypted,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isVerified => $composableBuilder(
-    column: $table.isVerified,
+  ColumnFilters<int> get endpointId => $composableBuilder(
+    column: $table.endpointId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14005,66 +12377,20 @@ class $$DevicesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$RouterModelsTableFilterComposer get routerModelId {
-    final $$RouterModelsTableFilterComposer composer = $composerBuilder(
+  $$BrandsTableFilterComposer get brandId {
+    final $$BrandsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableFilterComposer(
+          }) => $$BrandsTableFilterComposer(
             $db: $db,
-            $table: $db.routerModels,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$FirmwaresTableFilterComposer get firmwareId {
-    final $$FirmwaresTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.firmwareId,
-      referencedTable: $db.firmwares,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FirmwaresTableFilterComposer(
-            $db: $db,
-            $table: $db.firmwares,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$FingerprintsTableFilterComposer get lastFingerprintId {
-    final $$FingerprintsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.lastFingerprintId,
-      referencedTable: $db.fingerprints,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FingerprintsTableFilterComposer(
-            $db: $db,
-            $table: $db.fingerprints,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14075,9 +12401,9 @@ class $$DevicesTableFilterComposer
   }
 }
 
-class $$DevicesTableOrderingComposer
-    extends Composer<_$AppDatabase, $DevicesTable> {
-  $$DevicesTableOrderingComposer({
+class $$UserDevicesTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserDevicesTable> {
+  $$UserDevicesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -14089,28 +12415,18 @@ class $$DevicesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get ipAddress => $composableBuilder(
-    column: $table.ipAddress,
+  ColumnOrderings<String> get routerModel => $composableBuilder(
+    column: $table.routerModel,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get macAddress => $composableBuilder(
-    column: $table.macAddress,
+  ColumnOrderings<String> get dns => $composableBuilder(
+    column: $table.dns,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get alias => $composableBuilder(
-    column: $table.alias,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get credentialsEncrypted => $composableBuilder(
-    column: $table.credentialsEncrypted,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isVerified => $composableBuilder(
-    column: $table.isVerified,
+  ColumnOrderings<int> get endpointId => $composableBuilder(
+    column: $table.endpointId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14129,66 +12445,20 @@ class $$DevicesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$RouterModelsTableOrderingComposer get routerModelId {
-    final $$RouterModelsTableOrderingComposer composer = $composerBuilder(
+  $$BrandsTableOrderingComposer get brandId {
+    final $$BrandsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableOrderingComposer(
+          }) => $$BrandsTableOrderingComposer(
             $db: $db,
-            $table: $db.routerModels,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$FirmwaresTableOrderingComposer get firmwareId {
-    final $$FirmwaresTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.firmwareId,
-      referencedTable: $db.firmwares,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FirmwaresTableOrderingComposer(
-            $db: $db,
-            $table: $db.firmwares,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$FingerprintsTableOrderingComposer get lastFingerprintId {
-    final $$FingerprintsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.lastFingerprintId,
-      referencedTable: $db.fingerprints,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FingerprintsTableOrderingComposer(
-            $db: $db,
-            $table: $db.fingerprints,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14199,9 +12469,9 @@ class $$DevicesTableOrderingComposer
   }
 }
 
-class $$DevicesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DevicesTable> {
-  $$DevicesTableAnnotationComposer({
+class $$UserDevicesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserDevicesTable> {
+  $$UserDevicesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -14211,24 +12481,16 @@ class $$DevicesTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get ipAddress =>
-      $composableBuilder(column: $table.ipAddress, builder: (column) => column);
-
-  GeneratedColumn<String> get macAddress => $composableBuilder(
-    column: $table.macAddress,
+  GeneratedColumn<String> get routerModel => $composableBuilder(
+    column: $table.routerModel,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get alias =>
-      $composableBuilder(column: $table.alias, builder: (column) => column);
+  GeneratedColumn<String> get dns =>
+      $composableBuilder(column: $table.dns, builder: (column) => column);
 
-  GeneratedColumn<String> get credentialsEncrypted => $composableBuilder(
-    column: $table.credentialsEncrypted,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get isVerified => $composableBuilder(
-    column: $table.isVerified,
+  GeneratedColumn<int> get endpointId => $composableBuilder(
+    column: $table.endpointId,
     builder: (column) => column,
   );
 
@@ -14243,66 +12505,20 @@ class $$DevicesTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  $$RouterModelsTableAnnotationComposer get routerModelId {
-    final $$RouterModelsTableAnnotationComposer composer = $composerBuilder(
+  $$BrandsTableAnnotationComposer get brandId {
+    final $$BrandsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.routerModelId,
-      referencedTable: $db.routerModels,
+      getCurrentColumn: (t) => t.brandId,
+      referencedTable: $db.brands,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RouterModelsTableAnnotationComposer(
+          }) => $$BrandsTableAnnotationComposer(
             $db: $db,
-            $table: $db.routerModels,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$FirmwaresTableAnnotationComposer get firmwareId {
-    final $$FirmwaresTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.firmwareId,
-      referencedTable: $db.firmwares,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FirmwaresTableAnnotationComposer(
-            $db: $db,
-            $table: $db.firmwares,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$FingerprintsTableAnnotationComposer get lastFingerprintId {
-    final $$FingerprintsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.lastFingerprintId,
-      referencedTable: $db.fingerprints,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FingerprintsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.fingerprints,
+            $table: $db.brands,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14313,60 +12529,48 @@ class $$DevicesTableAnnotationComposer
   }
 }
 
-class $$DevicesTableTableManager
+class $$UserDevicesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $DevicesTable,
-          Device,
-          $$DevicesTableFilterComposer,
-          $$DevicesTableOrderingComposer,
-          $$DevicesTableAnnotationComposer,
-          $$DevicesTableCreateCompanionBuilder,
-          $$DevicesTableUpdateCompanionBuilder,
-          (Device, $$DevicesTableReferences),
-          Device,
-          PrefetchHooks Function({
-            bool routerModelId,
-            bool firmwareId,
-            bool lastFingerprintId,
-          })
+          $UserDevicesTable,
+          UserDevice,
+          $$UserDevicesTableFilterComposer,
+          $$UserDevicesTableOrderingComposer,
+          $$UserDevicesTableAnnotationComposer,
+          $$UserDevicesTableCreateCompanionBuilder,
+          $$UserDevicesTableUpdateCompanionBuilder,
+          (UserDevice, $$UserDevicesTableReferences),
+          UserDevice,
+          PrefetchHooks Function({bool brandId})
         > {
-  $$DevicesTableTableManager(_$AppDatabase db, $DevicesTable table)
+  $$UserDevicesTableTableManager(_$AppDatabase db, $UserDevicesTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$DevicesTableFilterComposer($db: db, $table: table),
+              $$UserDevicesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$DevicesTableOrderingComposer($db: db, $table: table),
+              $$UserDevicesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$DevicesTableAnnotationComposer($db: db, $table: table),
+              $$UserDevicesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int?> routerModelId = const Value.absent(),
-                Value<int?> firmwareId = const Value.absent(),
-                Value<String> ipAddress = const Value.absent(),
-                Value<String?> macAddress = const Value.absent(),
-                Value<String?> alias = const Value.absent(),
-                Value<String?> credentialsEncrypted = const Value.absent(),
-                Value<int?> lastFingerprintId = const Value.absent(),
-                Value<bool> isVerified = const Value.absent(),
+                Value<int> brandId = const Value.absent(),
+                Value<String?> routerModel = const Value.absent(),
+                Value<String?> dns = const Value.absent(),
+                Value<int?> endpointId = const Value.absent(),
                 Value<DateTime?> lastSeenAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
-              }) => DevicesCompanion(
+              }) => UserDevicesCompanion(
                 id: id,
-                routerModelId: routerModelId,
-                firmwareId: firmwareId,
-                ipAddress: ipAddress,
-                macAddress: macAddress,
-                alias: alias,
-                credentialsEncrypted: credentialsEncrypted,
-                lastFingerprintId: lastFingerprintId,
-                isVerified: isVerified,
+                brandId: brandId,
+                routerModel: routerModel,
+                dns: dns,
+                endpointId: endpointId,
                 lastSeenAt: lastSeenAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -14374,27 +12578,19 @@ class $$DevicesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int?> routerModelId = const Value.absent(),
-                Value<int?> firmwareId = const Value.absent(),
-                required String ipAddress,
-                Value<String?> macAddress = const Value.absent(),
-                Value<String?> alias = const Value.absent(),
-                Value<String?> credentialsEncrypted = const Value.absent(),
-                Value<int?> lastFingerprintId = const Value.absent(),
-                Value<bool> isVerified = const Value.absent(),
+                required int brandId,
+                Value<String?> routerModel = const Value.absent(),
+                Value<String?> dns = const Value.absent(),
+                Value<int?> endpointId = const Value.absent(),
                 Value<DateTime?> lastSeenAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
-              }) => DevicesCompanion.insert(
+              }) => UserDevicesCompanion.insert(
                 id: id,
-                routerModelId: routerModelId,
-                firmwareId: firmwareId,
-                ipAddress: ipAddress,
-                macAddress: macAddress,
-                alias: alias,
-                credentialsEncrypted: credentialsEncrypted,
-                lastFingerprintId: lastFingerprintId,
-                isVerified: isVerified,
+                brandId: brandId,
+                routerModel: routerModel,
+                dns: dns,
+                endpointId: endpointId,
                 lastSeenAt: lastSeenAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -14403,103 +12599,68 @@ class $$DevicesTableTableManager
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$DevicesTableReferences(db, table, e),
+                  $$UserDevicesTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({
-                routerModelId = false,
-                firmwareId = false,
-                lastFingerprintId = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (routerModelId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.routerModelId,
-                                    referencedTable: $$DevicesTableReferences
-                                        ._routerModelIdTable(db),
-                                    referencedColumn: $$DevicesTableReferences
-                                        ._routerModelIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
-                        if (firmwareId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.firmwareId,
-                                    referencedTable: $$DevicesTableReferences
-                                        ._firmwareIdTable(db),
-                                    referencedColumn: $$DevicesTableReferences
-                                        ._firmwareIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
-                        if (lastFingerprintId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.lastFingerprintId,
-                                    referencedTable: $$DevicesTableReferences
-                                        ._lastFingerprintIdTable(db),
-                                    referencedColumn: $$DevicesTableReferences
-                                        ._lastFingerprintIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
+          prefetchHooksCallback: ({brandId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (brandId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.brandId,
+                                referencedTable: $$UserDevicesTableReferences
+                                    ._brandIdTable(db),
+                                referencedColumn: $$UserDevicesTableReferences
+                                    ._brandIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
 
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [];
+                    return state;
                   },
-                );
+              getPrefetchedDataCallback: (items) async {
+                return [];
               },
+            );
+          },
         ),
       );
 }
 
-typedef $$DevicesTableProcessedTableManager =
+typedef $$UserDevicesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $DevicesTable,
-      Device,
-      $$DevicesTableFilterComposer,
-      $$DevicesTableOrderingComposer,
-      $$DevicesTableAnnotationComposer,
-      $$DevicesTableCreateCompanionBuilder,
-      $$DevicesTableUpdateCompanionBuilder,
-      (Device, $$DevicesTableReferences),
-      Device,
-      PrefetchHooks Function({
-        bool routerModelId,
-        bool firmwareId,
-        bool lastFingerprintId,
-      })
+      $UserDevicesTable,
+      UserDevice,
+      $$UserDevicesTableFilterComposer,
+      $$UserDevicesTableOrderingComposer,
+      $$UserDevicesTableAnnotationComposer,
+      $$UserDevicesTableCreateCompanionBuilder,
+      $$UserDevicesTableUpdateCompanionBuilder,
+      (UserDevice, $$UserDevicesTableReferences),
+      UserDevice,
+      PrefetchHooks Function({bool brandId})
     >;
 
 class $AppDatabaseManager {
@@ -14507,8 +12668,6 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$BrandsTableTableManager get brands =>
       $$BrandsTableTableManager(_db, _db.brands);
-  $$RouterModelsTableTableManager get routerModels =>
-      $$RouterModelsTableTableManager(_db, _db.routerModels);
   $$FirmwareTypesTableTableManager get firmwareTypes =>
       $$FirmwareTypesTableTableManager(_db, _db.firmwareTypes);
   $$ProtocolsTableTableManager get protocols =>
@@ -14531,6 +12690,6 @@ class $AppDatabaseManager {
       $$FingerprintsTableTableManager(_db, _db.fingerprints);
   $$VersionRulesTableTableManager get versionRules =>
       $$VersionRulesTableTableManager(_db, _db.versionRules);
-  $$DevicesTableTableManager get devices =>
-      $$DevicesTableTableManager(_db, _db.devices);
+  $$UserDevicesTableTableManager get userDevices =>
+      $$UserDevicesTableTableManager(_db, _db.userDevices);
 }

@@ -5,7 +5,7 @@ import 'tables/api_profiles.dart';
 import 'tables/authentication_methods.dart';
 import 'tables/brands.dart';
 import 'tables/capabilities.dart';
-import 'tables/devices.dart';
+import 'tables/user_devices.dart';
 import 'tables/drivers.dart';
 import 'tables/endpoints.dart';
 import 'tables/fingerprints.dart';
@@ -13,11 +13,9 @@ import 'tables/firmware_capabilities.dart';
 import 'tables/firmware_types.dart';
 import 'tables/firmwares.dart';
 import 'tables/protocols.dart';
-import 'tables/router_models.dart';
 import 'tables/version_rules.dart';
 
 import 'daos/brands_dao.dart';
-import 'daos/router_models_dao.dart';
 import 'daos/firmware_types_dao.dart';
 
 part 'database.g.dart';
@@ -25,7 +23,6 @@ part 'database.g.dart';
 @DriftDatabase(
   tables: [
     Brands,
-    RouterModels,
     FirmwareTypes,
     Protocols,
     AuthenticationMethods,
@@ -37,11 +34,10 @@ part 'database.g.dart';
     FirmwareCapabilities,
     Fingerprints,
     VersionRules,
-    Devices,
+    UserDevices,
   ],
   daos: [
     BrandsDao,
-    RouterModelsDao,
     FirmwareTypesDao,
   ],
 )
@@ -52,7 +48,7 @@ class AppDatabase extends _$AppDatabase {
 
   // Bump this and add a migration step below whenever you change a table.
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -64,8 +60,14 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(brands, brands.logo);
           }
           if (from < 3) {
-            await m.addColumn(routerModels, routerModels.modelNumber);
             await m.addColumn(brands, brands.dns);
+          }
+          if (from < 5) {
+            await m.deleteTable('devices');
+            await m.createTable(userDevices);
+          }
+          if (from < 6) {
+            await m.deleteTable('router_models');
           }
         },
         beforeOpen: (details) async {
