@@ -72,6 +72,29 @@ class AppDatabase extends _$AppDatabase {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  Future<void> debugDatabase() async {
+    print('=== START DRIFT DATABASE DEBUG ===');
+    
+    // Ensure the database is opened by executing a simple query
+    await customSelect('SELECT 1').get();
+
+    final dbList = await customSelect('PRAGMA database_list').get();
+    print('Database List:');
+    for (final row in dbList) {
+      print(row.data);
+    }
+
+    final tables = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type='table'",
+    ).get();
+    print('Tables:');
+    for (final table in tables) {
+      print(table.data);
+    }
+    
+    print('=== END DRIFT DATABASE DEBUG ===');
+  }
 }
 
 // Uses drift_flutter's cross-platform helper: picks the right native

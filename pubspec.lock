@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.9"
+  dart_service_announcement:
+    dependency: transitive
+    description:
+      name: dart_service_announcement
+      sha256: "90cac44984b3dd8b509af2f5130c7f179d375a8dab6c87213f734b8ef0172674"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.3"
   dart_style:
     dependency: transitive
     description:
@@ -257,6 +265,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
+  drift_local_storage_inspector:
+    dependency: "direct main"
+    description:
+      name: drift_local_storage_inspector
+      sha256: "31c06f1407e686ac566e4d5c6286680c531a883aa69b09474b23be9b7172824f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.0"
   dropdown_search:
     dependency: "direct main"
     description:
@@ -569,7 +585,7 @@ packages:
     source: hosted
     version: "1.9.1"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       sha256: a7f4874f987173da295a61c181b8ee71dab59b332a486b391babf26a1b884825
@@ -680,6 +696,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.2"
   recase:
     dependency: transitive
     description:
@@ -773,6 +797,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.1"
+  storage_inspector:
+    dependency: "direct main"
+    description:
+      name: storage_inspector
+      sha256: c2ce385c005b1de54301ac298028c86e40ab8521e61f3274134a1ae5a31b91b4
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   stream_channel:
     dependency: transitive
     description:
@@ -797,6 +829,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  synchronized:
+    dependency: transitive
+    description:
+      name: synchronized
+      sha256: "63896c27e81b28f8cb4e69ead0d3e8f03f1d1e5fc531a3e579cabed6a2c7c9e5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.0+1"
   term_glyph:
     dependency: transitive
     description:
@@ -813,6 +853,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.9"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -821,6 +869,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  uri:
+    dependency: transitive
+    description:
+      name: uri
+      sha256: "889eea21e953187c6099802b7b4cf5219ba8f3518f604a1033064d45b1b8268a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: "1fef9e8e11e2991bb773070d4656b7bd5d850967a2456cfc83cf47925ba79489"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.3"
   vector_math:
     dependency: transitive
     description:
