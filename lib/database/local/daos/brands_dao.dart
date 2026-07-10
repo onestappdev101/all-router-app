@@ -10,4 +10,6 @@ class BrandsDao extends DatabaseAccessor<AppDatabase> with _$BrandsDaoMixin {
 
   Stream<List<Brand>> watchAllBrands() => select(brands).watch();
   Future<List<Brand>> getAllBrands() => select(brands).get();
+  Future<Brand?> getBrandByName(String name) =>
+      (select(brands)..where((t) => t.name.equals(name))).getSingleOrNull();
 }
