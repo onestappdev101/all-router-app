@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onest_all_router_app/database/local/database.dart';
 import 'package:onest_all_router_app/views/screens/onboarding/are_you_conntected_with_router/sections/connect_router_title_subtitle_section.dart';
 import 'package:onest_all_router_app/views/screens/onboarding/are_you_conntected_with_router/sections/connected_router_button_section.dart';
 import 'package:onest_all_router_app/views/screens/onboarding/are_you_conntected_with_router/sections/router_phone_image_section.dart';
@@ -7,6 +8,7 @@ class ConnectRouterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("show the all brands name / select * from BRANDS / select * from from brands where dns is not null and    ");
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5FC),
       body: Padding(
