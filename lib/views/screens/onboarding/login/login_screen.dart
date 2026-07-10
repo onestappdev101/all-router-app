@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:onest_all_router_app/views/widgets/custom_text_field_widget.dart';
+import 'package:onest_all_router_app/viewmodels/login_viewmodel.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -112,48 +114,87 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_usernameController.text.trim().isEmpty ||
-                            _passwordController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Please enter both username and password.',
-                                style: GoogleFonts.outfit(),
-                              ),
-                              backgroundColor: const Color(0xFFE20613),
-                            ),
-                          );
-                          return;
-                        }
+                    child: Consumer<LoginViewmodel>(
+                      builder: (context, viewModel, child) {
+                        return ElevatedButton(
+                          onPressed: viewModel.isLoading
+                              ? null
+                              : () async {
+                                  final username = _usernameController.text.trim();
+                                  final password = _passwordController.text.trim();
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Successfully logged in!',
-                              style: GoogleFonts.outfit(),
-                            ),
+                                  if (username.isEmpty || password.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Please enter both username and password.',
+                                          style: GoogleFonts.outfit(),
+                                        ),
+                                        backgroundColor: const Color(0xFFE20613),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  final success = await viewModel.login(
+                                    username: username,
+                                    password: password,
+                                  );
+
+                                  if (!context.mounted) return;
+
+                                  if (success) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Successfully logged in!',
+                                          style: GoogleFonts.outfit(),
+                                        ),
+                                        backgroundColor: const Color(0xFF2D29D4),
+                                      ),
+                                    );
+                                    // Here you can navigate further if needed:
+                                    // Navigator.pushReplacement(context, ...);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          viewModel.errorMessage ?? 'Login failed.',
+                                          style: GoogleFonts.outfit(),
+                                        ),
+                                        backgroundColor: const Color(0xFFE20613),
+                                      ),
+                                    );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2D29D4),
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: const Color(0xFF2D29D4).withAlpha(153),
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
                           ),
+                          child: viewModel.isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : Text(
+                                  'Log In',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2D29D4),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'Log In',
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
                   ),
                 ],
