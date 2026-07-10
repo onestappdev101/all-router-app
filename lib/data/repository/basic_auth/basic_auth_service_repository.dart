@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
-import '../../service/basic_auth/router_status_service.dart';
+
+import '../../../core/service/basic_auth/router_status_service.dart';
+
 
 class BasicAuthServiceRepository {
   final RouterStatusService service;
