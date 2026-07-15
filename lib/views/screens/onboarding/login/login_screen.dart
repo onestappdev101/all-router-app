@@ -7,7 +7,9 @@ import 'package:onest_all_router_app/viewmodels/login_viewmodel.dart';
 
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final String? gatewayIp;
+
+  const LoginScreen({super.key, this.gatewayIp});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -136,9 +138,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return;
                                   }
 
+                                  final String computedBaseUrl = widget.gatewayIp != null && widget.gatewayIp!.isNotEmpty
+                                      ? 'http://${widget.gatewayIp}'
+                                      : 'http://192.168.1.1';
+                                  final String wholeUrl = '$computedBaseUrl/userRpm/LoginRpm.htm?Save=Save';
+
+                                  debugPrint('[LoginScreen] Method: login');
+                                  debugPrint('[LoginScreen] Username: $username');
+                                  debugPrint('[LoginScreen] Password: $password');
+                                  debugPrint('[LoginScreen] Base URL: $computedBaseUrl');
+                                  debugPrint('[LoginScreen] Whole URL: $wholeUrl');
+
                                   final success = await viewModel.login(
                                     username: username,
                                     password: password,
+                                    baseUrl: computedBaseUrl,
                                   );
 
                                   if (!context.mounted) return;

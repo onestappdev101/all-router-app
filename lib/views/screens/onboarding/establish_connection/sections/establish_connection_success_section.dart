@@ -222,7 +222,14 @@ class EstablishConnectionSuccessSection extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginScreen(
+                    gatewayIp: networkInfo?['wifiGateway'],
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2D29D4),
