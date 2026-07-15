@@ -54,7 +54,7 @@ class EndpointDiscoveryService {
         debugPrint('[EndpointDiscoveryService] Received response from $url with code: ${response.statusCode}');
         if (response.statusCode != null) {
           debugPrint('[EndpointDiscoveryService] Host $host resolved and responded successfully. Selection: $host');
-          return host;
+          return await _resolveToIp(host);
         }
       } catch (e) {
         debugPrint('[EndpointDiscoveryService] Error requesting $url: $e');
@@ -62,7 +62,7 @@ class EndpointDiscoveryService {
         if (e is DioException) {
           if (e.response != null) {
             debugPrint('[EndpointDiscoveryService] Exception has non-null response with code: ${e.response!.statusCode}. Marking host $host as active.');
-            return host;
+            return await _resolveToIp(host);
           } else {
             debugPrint('[EndpointDiscoveryService] DioException details: type=${e.type}, message=${e.message}');
           }
@@ -71,5 +71,19 @@ class EndpointDiscoveryService {
     }
     debugPrint('[EndpointDiscoveryService] All domains failed to respond.');
     throw Exception('No valid endpoint found in the provided hosts.');
+  }
+
+  Future<String> _resolveToIp(String host) async {
+    try {
+      final List<InternetAddress> addresses = await InternetAddress.lookup(host);
+      if (addresses.isNotEmpty && addresses.first.address.isNotEmpty) {
+        final resolvedIp = addresses.first.address;
+        debugPrint('[EndpointDiscoveryService] Resolved $host to IP: $resolvedIp');
+        return resolvedIp;
+      }
+    } catch (e) {
+      debugPrint('[EndpointDiscoveryService] Failed to resolve IP for $host: $e');
+    }
+    return host;
   }
 }
