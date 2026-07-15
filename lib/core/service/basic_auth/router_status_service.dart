@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 /// Thrown when the router rejects the login (matches httpAutErrorArray codes).
 class RouterLoginException implements Exception {
@@ -103,6 +104,8 @@ class RouterStatusService {
         ),
       );
 
+      debugPrint('[RouterStatusService] Login HTTP Status Code: ${response.statusCode}');
+
       final body = response.data ?? '';
 
       // Check for httpAutErrorArray — present when login is re-shown due to an error.
@@ -131,6 +134,7 @@ class RouterStatusService {
 
       return tokenMatch.group(1)!;
     } on DioException catch (e) {
+      debugPrint('[RouterStatusService] Login HTTP Status Code (Error): ${e.response?.statusCode}');
       throw RouterLoginException('Network error during login: ${e.message}');
     }
   }
