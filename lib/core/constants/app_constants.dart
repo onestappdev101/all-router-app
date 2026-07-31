@@ -63,6 +63,7 @@ abstract final class AppConstants {
   static const String authDigest = 'digest';
   static const String authCookie = 'cookie';
   static const String authBearer = 'bearer';
+  static const String authOAuthApiKey = 'oauth_api_key';
 
   // Discovery methods
   static const String methodDirectGateway = 'direct_gateway';
