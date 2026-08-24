@@ -15,9 +15,7 @@ class Fingerprints extends Table {
   // title, favicon_hash, cookie, server, header, html, redirect, api_response
   TextColumn get matchType => text()();
   TextColumn get matchValue => text()();
-  IntColumn get priority => integer().withDefault(const Constant(0))();
   // 0-100, how strong this signal is on its own
   IntColumn get confidence => integer().withDefault(const Constant(0))();
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
+

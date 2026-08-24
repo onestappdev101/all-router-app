@@ -28,14 +28,14 @@ class CheckConnectionRepository {
 
     final String cleanSsid = _cleanWifiName(infoResult?['wifiName']);
     final result = {
-      'wifiName': (cleanSsid == 'Connected Network' || cleanSsid.isEmpty)
-          ? 'n/a'
+      'wifiName': (cleanSsid == 'N/A' || cleanSsid.isEmpty)
+          ? 'N/A'
           : cleanSsid,
-      'wifiBSSID': infoResult?['wifiBSSID'] ?? 'n/a',
-      'wifiIP': infoResult?['wifiIP'] ?? 'n/a',
-      'wifiIPv6': infoResult?['wifiIPv6'] ?? 'n/a',
-      'wifiSubmask': infoResult?['wifiSubmask'] ?? 'n/a',
-      'wifiBroadcast': infoResult?['wifiBroadcast'] ?? 'n/a',
+      'wifiBSSID': infoResult?['wifiBSSID'] ?? 'N/A',
+      'wifiIP': infoResult?['wifiIP'] ?? 'N/A',
+      'wifiIPv6': infoResult?['wifiIPv6'] ?? 'N/A',
+      'wifiSubmask': infoResult?['wifiSubmask'] ?? 'N/A',
+      'wifiBroadcast': infoResult?['wifiBroadcast'] ?? 'N/A',
       'wifiGateway': activeHost,
     };
     debugPrint('[CheckConnectionRepository] Final mapped connection payload: $result');
@@ -43,7 +43,7 @@ class CheckConnectionRepository {
   }
 
   String _cleanWifiName(String? name) {
-    if (name == null || name.isEmpty) return 'Connected Network';
+    if (name == null || name.isEmpty) return 'N/A';
     if (name.startsWith('"') && name.endsWith('"')) {
       return name.substring(1, name.length - 1);
     }

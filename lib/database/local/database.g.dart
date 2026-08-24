@@ -1391,28 +1391,6 @@ class $DriversTable extends Drivers with TableInfo<$DriversTable, Driver> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _languageMeta = const VerificationMeta(
-    'language',
-  );
-  @override
-  late final GeneratedColumn<String> language = GeneratedColumn<String>(
-    'language',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _versionMeta = const VerificationMeta(
-    'version',
-  );
-  @override
-  late final GeneratedColumn<String> version = GeneratedColumn<String>(
-    'version',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -1422,41 +1400,8 @@ class $DriversTable extends Drivers with TableInfo<$DriversTable, Driver> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
   @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    driverClass,
-    language,
-    version,
-    notes,
-    createdAt,
-    updatedAt,
-  ];
+  List<GeneratedColumn> get $columns => [id, name, driverClass, notes];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1491,34 +1436,10 @@ class $DriversTable extends Drivers with TableInfo<$DriversTable, Driver> {
     } else if (isInserting) {
       context.missing(_driverClassMeta);
     }
-    if (data.containsKey('language')) {
-      context.handle(
-        _languageMeta,
-        language.isAcceptableOrUnknown(data['language']!, _languageMeta),
-      );
-    }
-    if (data.containsKey('version')) {
-      context.handle(
-        _versionMeta,
-        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
-      );
-    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
     return context;
@@ -1542,26 +1463,10 @@ class $DriversTable extends Drivers with TableInfo<$DriversTable, Driver> {
         DriftSqlType.string,
         data['${effectivePrefix}driver_class'],
       )!,
-      language: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}language'],
-      ),
-      version: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}version'],
-      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
     );
   }
 
@@ -1575,20 +1480,12 @@ class Driver extends DataClass implements Insertable<Driver> {
   final int id;
   final String name;
   final String driverClass;
-  final String? language;
-  final String? version;
   final String? notes;
-  final DateTime createdAt;
-  final DateTime updatedAt;
   const Driver({
     required this.id,
     required this.name,
     required this.driverClass,
-    this.language,
-    this.version,
     this.notes,
-    required this.createdAt,
-    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1596,17 +1493,9 @@ class Driver extends DataClass implements Insertable<Driver> {
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
     map['driver_class'] = Variable<String>(driverClass);
-    if (!nullToAbsent || language != null) {
-      map['language'] = Variable<String>(language);
-    }
-    if (!nullToAbsent || version != null) {
-      map['version'] = Variable<String>(version);
-    }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -1615,17 +1504,9 @@ class Driver extends DataClass implements Insertable<Driver> {
       id: Value(id),
       name: Value(name),
       driverClass: Value(driverClass),
-      language: language == null && nullToAbsent
-          ? const Value.absent()
-          : Value(language),
-      version: version == null && nullToAbsent
-          ? const Value.absent()
-          : Value(version),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
     );
   }
 
@@ -1638,11 +1519,7 @@ class Driver extends DataClass implements Insertable<Driver> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       driverClass: serializer.fromJson<String>(json['driverClass']),
-      language: serializer.fromJson<String?>(json['language']),
-      version: serializer.fromJson<String?>(json['version']),
       notes: serializer.fromJson<String?>(json['notes']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -1652,11 +1529,7 @@ class Driver extends DataClass implements Insertable<Driver> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'driverClass': serializer.toJson<String>(driverClass),
-      'language': serializer.toJson<String?>(language),
-      'version': serializer.toJson<String?>(version),
       'notes': serializer.toJson<String?>(notes),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
@@ -1664,20 +1537,12 @@ class Driver extends DataClass implements Insertable<Driver> {
     int? id,
     String? name,
     String? driverClass,
-    Value<String?> language = const Value.absent(),
-    Value<String?> version = const Value.absent(),
     Value<String?> notes = const Value.absent(),
-    DateTime? createdAt,
-    DateTime? updatedAt,
   }) => Driver(
     id: id ?? this.id,
     name: name ?? this.name,
     driverClass: driverClass ?? this.driverClass,
-    language: language.present ? language.value : this.language,
-    version: version.present ? version.value : this.version,
     notes: notes.present ? notes.value : this.notes,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
   );
   Driver copyWithCompanion(DriversCompanion data) {
     return Driver(
@@ -1686,11 +1551,7 @@ class Driver extends DataClass implements Insertable<Driver> {
       driverClass: data.driverClass.present
           ? data.driverClass.value
           : this.driverClass,
-      language: data.language.present ? data.language.value : this.language,
-      version: data.version.present ? data.version.value : this.version,
       notes: data.notes.present ? data.notes.value : this.notes,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -1700,26 +1561,13 @@ class Driver extends DataClass implements Insertable<Driver> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('driverClass: $driverClass, ')
-          ..write('language: $language, ')
-          ..write('version: $version, ')
-          ..write('notes: $notes, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('notes: $notes')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    name,
-    driverClass,
-    language,
-    version,
-    notes,
-    createdAt,
-    updatedAt,
-  );
+  int get hashCode => Object.hash(id, name, driverClass, notes);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1727,62 +1575,38 @@ class Driver extends DataClass implements Insertable<Driver> {
           other.id == this.id &&
           other.name == this.name &&
           other.driverClass == this.driverClass &&
-          other.language == this.language &&
-          other.version == this.version &&
-          other.notes == this.notes &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.notes == this.notes);
 }
 
 class DriversCompanion extends UpdateCompanion<Driver> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> driverClass;
-  final Value<String?> language;
-  final Value<String?> version;
   final Value<String?> notes;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
   const DriversCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.driverClass = const Value.absent(),
-    this.language = const Value.absent(),
-    this.version = const Value.absent(),
     this.notes = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   });
   DriversCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required String driverClass,
-    this.language = const Value.absent(),
-    this.version = const Value.absent(),
     this.notes = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   }) : name = Value(name),
        driverClass = Value(driverClass);
   static Insertable<Driver> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? driverClass,
-    Expression<String>? language,
-    Expression<String>? version,
     Expression<String>? notes,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (driverClass != null) 'driver_class': driverClass,
-      if (language != null) 'language': language,
-      if (version != null) 'version': version,
       if (notes != null) 'notes': notes,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -1790,21 +1614,13 @@ class DriversCompanion extends UpdateCompanion<Driver> {
     Value<int>? id,
     Value<String>? name,
     Value<String>? driverClass,
-    Value<String?>? language,
-    Value<String?>? version,
     Value<String?>? notes,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
   }) {
     return DriversCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       driverClass: driverClass ?? this.driverClass,
-      language: language ?? this.language,
-      version: version ?? this.version,
       notes: notes ?? this.notes,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -1820,20 +1636,8 @@ class DriversCompanion extends UpdateCompanion<Driver> {
     if (driverClass.present) {
       map['driver_class'] = Variable<String>(driverClass.value);
     }
-    if (language.present) {
-      map['language'] = Variable<String>(language.value);
-    }
-    if (version.present) {
-      map['version'] = Variable<String>(version.value);
-    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     return map;
   }
@@ -1844,11 +1648,7 @@ class DriversCompanion extends UpdateCompanion<Driver> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('driverClass: $driverClass, ')
-          ..write('language: $language, ')
-          ..write('version: $version, ')
-          ..write('notes: $notes, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('notes: $notes')
           ..write(')'))
         .toString();
   }
@@ -2872,118 +2672,6 @@ class $FirmwaresTable extends Firmwares
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _versionMajorMeta = const VerificationMeta(
-    'versionMajor',
-  );
-  @override
-  late final GeneratedColumn<int> versionMajor = GeneratedColumn<int>(
-    'version_major',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _versionMinorMeta = const VerificationMeta(
-    'versionMinor',
-  );
-  @override
-  late final GeneratedColumn<int> versionMinor = GeneratedColumn<int>(
-    'version_minor',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _versionPatchMeta = const VerificationMeta(
-    'versionPatch',
-  );
-  @override
-  late final GeneratedColumn<int> versionPatch = GeneratedColumn<int>(
-    'version_patch',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _versionSortMeta = const VerificationMeta(
-    'versionSort',
-  );
-  @override
-  late final GeneratedColumn<int> versionSort = GeneratedColumn<int>(
-    'version_sort',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _buildNumberMeta = const VerificationMeta(
-    'buildNumber',
-  );
-  @override
-  late final GeneratedColumn<String> buildNumber = GeneratedColumn<String>(
-    'build_number',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _releaseDateMeta = const VerificationMeta(
-    'releaseDate',
-  );
-  @override
-  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
-    'release_date',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _isBetaMeta = const VerificationMeta('isBeta');
-  @override
-  late final GeneratedColumn<bool> isBeta = GeneratedColumn<bool>(
-    'is_beta',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_beta" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2991,16 +2679,6 @@ class $FirmwaresTable extends Firmwares
     firmwareTypeId,
     apiProfileId,
     version,
-    versionMajor,
-    versionMinor,
-    versionPatch,
-    versionSort,
-    buildNumber,
-    releaseDate,
-    isBeta,
-    notes,
-    createdAt,
-    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3055,84 +2733,6 @@ class $FirmwaresTable extends Firmwares
     } else if (isInserting) {
       context.missing(_versionMeta);
     }
-    if (data.containsKey('version_major')) {
-      context.handle(
-        _versionMajorMeta,
-        versionMajor.isAcceptableOrUnknown(
-          data['version_major']!,
-          _versionMajorMeta,
-        ),
-      );
-    }
-    if (data.containsKey('version_minor')) {
-      context.handle(
-        _versionMinorMeta,
-        versionMinor.isAcceptableOrUnknown(
-          data['version_minor']!,
-          _versionMinorMeta,
-        ),
-      );
-    }
-    if (data.containsKey('version_patch')) {
-      context.handle(
-        _versionPatchMeta,
-        versionPatch.isAcceptableOrUnknown(
-          data['version_patch']!,
-          _versionPatchMeta,
-        ),
-      );
-    }
-    if (data.containsKey('version_sort')) {
-      context.handle(
-        _versionSortMeta,
-        versionSort.isAcceptableOrUnknown(
-          data['version_sort']!,
-          _versionSortMeta,
-        ),
-      );
-    }
-    if (data.containsKey('build_number')) {
-      context.handle(
-        _buildNumberMeta,
-        buildNumber.isAcceptableOrUnknown(
-          data['build_number']!,
-          _buildNumberMeta,
-        ),
-      );
-    }
-    if (data.containsKey('release_date')) {
-      context.handle(
-        _releaseDateMeta,
-        releaseDate.isAcceptableOrUnknown(
-          data['release_date']!,
-          _releaseDateMeta,
-        ),
-      );
-    }
-    if (data.containsKey('is_beta')) {
-      context.handle(
-        _isBetaMeta,
-        isBeta.isAcceptableOrUnknown(data['is_beta']!, _isBetaMeta),
-      );
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
     return context;
   }
 
@@ -3140,7 +2740,7 @@ class $FirmwaresTable extends Firmwares
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   List<Set<GeneratedColumn>> get uniqueKeys => [
-    {brandId, firmwareTypeId, version, buildNumber},
+    {brandId, firmwareTypeId, version},
   ];
   @override
   Firmware map(Map<String, dynamic> data, {String? tablePrefix}) {
@@ -3166,46 +2766,6 @@ class $FirmwaresTable extends Firmwares
         DriftSqlType.string,
         data['${effectivePrefix}version'],
       )!,
-      versionMajor: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}version_major'],
-      ),
-      versionMinor: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}version_minor'],
-      ),
-      versionPatch: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}version_patch'],
-      ),
-      versionSort: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}version_sort'],
-      ),
-      buildNumber: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}build_number'],
-      ),
-      releaseDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}release_date'],
-      ),
-      isBeta: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_beta'],
-      )!,
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
     );
   }
 
@@ -3221,32 +2781,12 @@ class Firmware extends DataClass implements Insertable<Firmware> {
   final int firmwareTypeId;
   final int apiProfileId;
   final String version;
-  final int? versionMajor;
-  final int? versionMinor;
-  final int? versionPatch;
-  final int? versionSort;
-  final String? buildNumber;
-  final DateTime? releaseDate;
-  final bool isBeta;
-  final String? notes;
-  final DateTime createdAt;
-  final DateTime updatedAt;
   const Firmware({
     required this.id,
     required this.brandId,
     required this.firmwareTypeId,
     required this.apiProfileId,
     required this.version,
-    this.versionMajor,
-    this.versionMinor,
-    this.versionPatch,
-    this.versionSort,
-    this.buildNumber,
-    this.releaseDate,
-    required this.isBeta,
-    this.notes,
-    required this.createdAt,
-    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3256,30 +2796,6 @@ class Firmware extends DataClass implements Insertable<Firmware> {
     map['firmware_type_id'] = Variable<int>(firmwareTypeId);
     map['api_profile_id'] = Variable<int>(apiProfileId);
     map['version'] = Variable<String>(version);
-    if (!nullToAbsent || versionMajor != null) {
-      map['version_major'] = Variable<int>(versionMajor);
-    }
-    if (!nullToAbsent || versionMinor != null) {
-      map['version_minor'] = Variable<int>(versionMinor);
-    }
-    if (!nullToAbsent || versionPatch != null) {
-      map['version_patch'] = Variable<int>(versionPatch);
-    }
-    if (!nullToAbsent || versionSort != null) {
-      map['version_sort'] = Variable<int>(versionSort);
-    }
-    if (!nullToAbsent || buildNumber != null) {
-      map['build_number'] = Variable<String>(buildNumber);
-    }
-    if (!nullToAbsent || releaseDate != null) {
-      map['release_date'] = Variable<DateTime>(releaseDate);
-    }
-    map['is_beta'] = Variable<bool>(isBeta);
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -3290,30 +2806,6 @@ class Firmware extends DataClass implements Insertable<Firmware> {
       firmwareTypeId: Value(firmwareTypeId),
       apiProfileId: Value(apiProfileId),
       version: Value(version),
-      versionMajor: versionMajor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(versionMajor),
-      versionMinor: versionMinor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(versionMinor),
-      versionPatch: versionPatch == null && nullToAbsent
-          ? const Value.absent()
-          : Value(versionPatch),
-      versionSort: versionSort == null && nullToAbsent
-          ? const Value.absent()
-          : Value(versionSort),
-      buildNumber: buildNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(buildNumber),
-      releaseDate: releaseDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(releaseDate),
-      isBeta: Value(isBeta),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
     );
   }
 
@@ -3328,16 +2820,6 @@ class Firmware extends DataClass implements Insertable<Firmware> {
       firmwareTypeId: serializer.fromJson<int>(json['firmwareTypeId']),
       apiProfileId: serializer.fromJson<int>(json['apiProfileId']),
       version: serializer.fromJson<String>(json['version']),
-      versionMajor: serializer.fromJson<int?>(json['versionMajor']),
-      versionMinor: serializer.fromJson<int?>(json['versionMinor']),
-      versionPatch: serializer.fromJson<int?>(json['versionPatch']),
-      versionSort: serializer.fromJson<int?>(json['versionSort']),
-      buildNumber: serializer.fromJson<String?>(json['buildNumber']),
-      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
-      isBeta: serializer.fromJson<bool>(json['isBeta']),
-      notes: serializer.fromJson<String?>(json['notes']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -3349,16 +2831,6 @@ class Firmware extends DataClass implements Insertable<Firmware> {
       'firmwareTypeId': serializer.toJson<int>(firmwareTypeId),
       'apiProfileId': serializer.toJson<int>(apiProfileId),
       'version': serializer.toJson<String>(version),
-      'versionMajor': serializer.toJson<int?>(versionMajor),
-      'versionMinor': serializer.toJson<int?>(versionMinor),
-      'versionPatch': serializer.toJson<int?>(versionPatch),
-      'versionSort': serializer.toJson<int?>(versionSort),
-      'buildNumber': serializer.toJson<String?>(buildNumber),
-      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
-      'isBeta': serializer.toJson<bool>(isBeta),
-      'notes': serializer.toJson<String?>(notes),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
@@ -3368,32 +2840,12 @@ class Firmware extends DataClass implements Insertable<Firmware> {
     int? firmwareTypeId,
     int? apiProfileId,
     String? version,
-    Value<int?> versionMajor = const Value.absent(),
-    Value<int?> versionMinor = const Value.absent(),
-    Value<int?> versionPatch = const Value.absent(),
-    Value<int?> versionSort = const Value.absent(),
-    Value<String?> buildNumber = const Value.absent(),
-    Value<DateTime?> releaseDate = const Value.absent(),
-    bool? isBeta,
-    Value<String?> notes = const Value.absent(),
-    DateTime? createdAt,
-    DateTime? updatedAt,
   }) => Firmware(
     id: id ?? this.id,
     brandId: brandId ?? this.brandId,
     firmwareTypeId: firmwareTypeId ?? this.firmwareTypeId,
     apiProfileId: apiProfileId ?? this.apiProfileId,
     version: version ?? this.version,
-    versionMajor: versionMajor.present ? versionMajor.value : this.versionMajor,
-    versionMinor: versionMinor.present ? versionMinor.value : this.versionMinor,
-    versionPatch: versionPatch.present ? versionPatch.value : this.versionPatch,
-    versionSort: versionSort.present ? versionSort.value : this.versionSort,
-    buildNumber: buildNumber.present ? buildNumber.value : this.buildNumber,
-    releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
-    isBeta: isBeta ?? this.isBeta,
-    notes: notes.present ? notes.value : this.notes,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
   );
   Firmware copyWithCompanion(FirmwaresCompanion data) {
     return Firmware(
@@ -3406,28 +2858,6 @@ class Firmware extends DataClass implements Insertable<Firmware> {
           ? data.apiProfileId.value
           : this.apiProfileId,
       version: data.version.present ? data.version.value : this.version,
-      versionMajor: data.versionMajor.present
-          ? data.versionMajor.value
-          : this.versionMajor,
-      versionMinor: data.versionMinor.present
-          ? data.versionMinor.value
-          : this.versionMinor,
-      versionPatch: data.versionPatch.present
-          ? data.versionPatch.value
-          : this.versionPatch,
-      versionSort: data.versionSort.present
-          ? data.versionSort.value
-          : this.versionSort,
-      buildNumber: data.buildNumber.present
-          ? data.buildNumber.value
-          : this.buildNumber,
-      releaseDate: data.releaseDate.present
-          ? data.releaseDate.value
-          : this.releaseDate,
-      isBeta: data.isBeta.present ? data.isBeta.value : this.isBeta,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -3438,39 +2868,14 @@ class Firmware extends DataClass implements Insertable<Firmware> {
           ..write('brandId: $brandId, ')
           ..write('firmwareTypeId: $firmwareTypeId, ')
           ..write('apiProfileId: $apiProfileId, ')
-          ..write('version: $version, ')
-          ..write('versionMajor: $versionMajor, ')
-          ..write('versionMinor: $versionMinor, ')
-          ..write('versionPatch: $versionPatch, ')
-          ..write('versionSort: $versionSort, ')
-          ..write('buildNumber: $buildNumber, ')
-          ..write('releaseDate: $releaseDate, ')
-          ..write('isBeta: $isBeta, ')
-          ..write('notes: $notes, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('version: $version')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    brandId,
-    firmwareTypeId,
-    apiProfileId,
-    version,
-    versionMajor,
-    versionMinor,
-    versionPatch,
-    versionSort,
-    buildNumber,
-    releaseDate,
-    isBeta,
-    notes,
-    createdAt,
-    updatedAt,
-  );
+  int get hashCode =>
+      Object.hash(id, brandId, firmwareTypeId, apiProfileId, version);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3479,17 +2884,7 @@ class Firmware extends DataClass implements Insertable<Firmware> {
           other.brandId == this.brandId &&
           other.firmwareTypeId == this.firmwareTypeId &&
           other.apiProfileId == this.apiProfileId &&
-          other.version == this.version &&
-          other.versionMajor == this.versionMajor &&
-          other.versionMinor == this.versionMinor &&
-          other.versionPatch == this.versionPatch &&
-          other.versionSort == this.versionSort &&
-          other.buildNumber == this.buildNumber &&
-          other.releaseDate == this.releaseDate &&
-          other.isBeta == this.isBeta &&
-          other.notes == this.notes &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.version == this.version);
 }
 
 class FirmwaresCompanion extends UpdateCompanion<Firmware> {
@@ -3498,32 +2893,12 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
   final Value<int> firmwareTypeId;
   final Value<int> apiProfileId;
   final Value<String> version;
-  final Value<int?> versionMajor;
-  final Value<int?> versionMinor;
-  final Value<int?> versionPatch;
-  final Value<int?> versionSort;
-  final Value<String?> buildNumber;
-  final Value<DateTime?> releaseDate;
-  final Value<bool> isBeta;
-  final Value<String?> notes;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
   const FirmwaresCompanion({
     this.id = const Value.absent(),
     this.brandId = const Value.absent(),
     this.firmwareTypeId = const Value.absent(),
     this.apiProfileId = const Value.absent(),
     this.version = const Value.absent(),
-    this.versionMajor = const Value.absent(),
-    this.versionMinor = const Value.absent(),
-    this.versionPatch = const Value.absent(),
-    this.versionSort = const Value.absent(),
-    this.buildNumber = const Value.absent(),
-    this.releaseDate = const Value.absent(),
-    this.isBeta = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   });
   FirmwaresCompanion.insert({
     this.id = const Value.absent(),
@@ -3531,16 +2906,6 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
     required int firmwareTypeId,
     required int apiProfileId,
     required String version,
-    this.versionMajor = const Value.absent(),
-    this.versionMinor = const Value.absent(),
-    this.versionPatch = const Value.absent(),
-    this.versionSort = const Value.absent(),
-    this.buildNumber = const Value.absent(),
-    this.releaseDate = const Value.absent(),
-    this.isBeta = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   }) : brandId = Value(brandId),
        firmwareTypeId = Value(firmwareTypeId),
        apiProfileId = Value(apiProfileId),
@@ -3551,16 +2916,6 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
     Expression<int>? firmwareTypeId,
     Expression<int>? apiProfileId,
     Expression<String>? version,
-    Expression<int>? versionMajor,
-    Expression<int>? versionMinor,
-    Expression<int>? versionPatch,
-    Expression<int>? versionSort,
-    Expression<String>? buildNumber,
-    Expression<DateTime>? releaseDate,
-    Expression<bool>? isBeta,
-    Expression<String>? notes,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3568,16 +2923,6 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
       if (firmwareTypeId != null) 'firmware_type_id': firmwareTypeId,
       if (apiProfileId != null) 'api_profile_id': apiProfileId,
       if (version != null) 'version': version,
-      if (versionMajor != null) 'version_major': versionMajor,
-      if (versionMinor != null) 'version_minor': versionMinor,
-      if (versionPatch != null) 'version_patch': versionPatch,
-      if (versionSort != null) 'version_sort': versionSort,
-      if (buildNumber != null) 'build_number': buildNumber,
-      if (releaseDate != null) 'release_date': releaseDate,
-      if (isBeta != null) 'is_beta': isBeta,
-      if (notes != null) 'notes': notes,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -3587,16 +2932,6 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
     Value<int>? firmwareTypeId,
     Value<int>? apiProfileId,
     Value<String>? version,
-    Value<int?>? versionMajor,
-    Value<int?>? versionMinor,
-    Value<int?>? versionPatch,
-    Value<int?>? versionSort,
-    Value<String?>? buildNumber,
-    Value<DateTime?>? releaseDate,
-    Value<bool>? isBeta,
-    Value<String?>? notes,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
   }) {
     return FirmwaresCompanion(
       id: id ?? this.id,
@@ -3604,16 +2939,6 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
       firmwareTypeId: firmwareTypeId ?? this.firmwareTypeId,
       apiProfileId: apiProfileId ?? this.apiProfileId,
       version: version ?? this.version,
-      versionMajor: versionMajor ?? this.versionMajor,
-      versionMinor: versionMinor ?? this.versionMinor,
-      versionPatch: versionPatch ?? this.versionPatch,
-      versionSort: versionSort ?? this.versionSort,
-      buildNumber: buildNumber ?? this.buildNumber,
-      releaseDate: releaseDate ?? this.releaseDate,
-      isBeta: isBeta ?? this.isBeta,
-      notes: notes ?? this.notes,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -3635,36 +2960,6 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
     if (version.present) {
       map['version'] = Variable<String>(version.value);
     }
-    if (versionMajor.present) {
-      map['version_major'] = Variable<int>(versionMajor.value);
-    }
-    if (versionMinor.present) {
-      map['version_minor'] = Variable<int>(versionMinor.value);
-    }
-    if (versionPatch.present) {
-      map['version_patch'] = Variable<int>(versionPatch.value);
-    }
-    if (versionSort.present) {
-      map['version_sort'] = Variable<int>(versionSort.value);
-    }
-    if (buildNumber.present) {
-      map['build_number'] = Variable<String>(buildNumber.value);
-    }
-    if (releaseDate.present) {
-      map['release_date'] = Variable<DateTime>(releaseDate.value);
-    }
-    if (isBeta.present) {
-      map['is_beta'] = Variable<bool>(isBeta.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
     return map;
   }
 
@@ -3675,17 +2970,7 @@ class FirmwaresCompanion extends UpdateCompanion<Firmware> {
           ..write('brandId: $brandId, ')
           ..write('firmwareTypeId: $firmwareTypeId, ')
           ..write('apiProfileId: $apiProfileId, ')
-          ..write('version: $version, ')
-          ..write('versionMajor: $versionMajor, ')
-          ..write('versionMinor: $versionMinor, ')
-          ..write('versionPatch: $versionPatch, ')
-          ..write('versionSort: $versionSort, ')
-          ..write('buildNumber: $buildNumber, ')
-          ..write('releaseDate: $releaseDate, ')
-          ..write('isBeta: $isBeta, ')
-          ..write('notes: $notes, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('version: $version')
           ..write(')'))
         .toString();
   }
@@ -4996,18 +4281,6 @@ class $FingerprintsTable extends Fingerprints
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _priorityMeta = const VerificationMeta(
-    'priority',
-  );
-  @override
-  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
-    'priority',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
   static const VerificationMeta _confidenceMeta = const VerificationMeta(
     'confidence',
   );
@@ -5020,30 +4293,6 @@ class $FingerprintsTable extends Fingerprints
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5051,10 +4300,7 @@ class $FingerprintsTable extends Fingerprints
     firmwareId,
     matchType,
     matchValue,
-    priority,
     confidence,
-    createdAt,
-    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5099,28 +4345,10 @@ class $FingerprintsTable extends Fingerprints
     } else if (isInserting) {
       context.missing(_matchValueMeta);
     }
-    if (data.containsKey('priority')) {
-      context.handle(
-        _priorityMeta,
-        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
-      );
-    }
     if (data.containsKey('confidence')) {
       context.handle(
         _confidenceMeta,
         confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
     return context;
@@ -5152,21 +4380,9 @@ class $FingerprintsTable extends Fingerprints
         DriftSqlType.string,
         data['${effectivePrefix}match_value'],
       )!,
-      priority: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}priority'],
-      )!,
       confidence: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}confidence'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
       )!,
     );
   }
@@ -5183,20 +4399,14 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
   final int? firmwareId;
   final String matchType;
   final String matchValue;
-  final int priority;
   final int confidence;
-  final DateTime createdAt;
-  final DateTime updatedAt;
   const Fingerprint({
     required this.id,
     this.brandId,
     this.firmwareId,
     required this.matchType,
     required this.matchValue,
-    required this.priority,
     required this.confidence,
-    required this.createdAt,
-    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5210,10 +4420,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
     }
     map['match_type'] = Variable<String>(matchType);
     map['match_value'] = Variable<String>(matchValue);
-    map['priority'] = Variable<int>(priority);
     map['confidence'] = Variable<int>(confidence);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -5228,10 +4435,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
           : Value(firmwareId),
       matchType: Value(matchType),
       matchValue: Value(matchValue),
-      priority: Value(priority),
       confidence: Value(confidence),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
     );
   }
 
@@ -5246,10 +4450,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
       firmwareId: serializer.fromJson<int?>(json['firmwareId']),
       matchType: serializer.fromJson<String>(json['matchType']),
       matchValue: serializer.fromJson<String>(json['matchValue']),
-      priority: serializer.fromJson<int>(json['priority']),
       confidence: serializer.fromJson<int>(json['confidence']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -5261,10 +4462,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
       'firmwareId': serializer.toJson<int?>(firmwareId),
       'matchType': serializer.toJson<String>(matchType),
       'matchValue': serializer.toJson<String>(matchValue),
-      'priority': serializer.toJson<int>(priority),
       'confidence': serializer.toJson<int>(confidence),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
@@ -5274,20 +4472,14 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
     Value<int?> firmwareId = const Value.absent(),
     String? matchType,
     String? matchValue,
-    int? priority,
     int? confidence,
-    DateTime? createdAt,
-    DateTime? updatedAt,
   }) => Fingerprint(
     id: id ?? this.id,
     brandId: brandId.present ? brandId.value : this.brandId,
     firmwareId: firmwareId.present ? firmwareId.value : this.firmwareId,
     matchType: matchType ?? this.matchType,
     matchValue: matchValue ?? this.matchValue,
-    priority: priority ?? this.priority,
     confidence: confidence ?? this.confidence,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
   );
   Fingerprint copyWithCompanion(FingerprintsCompanion data) {
     return Fingerprint(
@@ -5300,12 +4492,9 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
       matchValue: data.matchValue.present
           ? data.matchValue.value
           : this.matchValue,
-      priority: data.priority.present ? data.priority.value : this.priority,
       confidence: data.confidence.present
           ? data.confidence.value
           : this.confidence,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -5317,26 +4506,14 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
           ..write('firmwareId: $firmwareId, ')
           ..write('matchType: $matchType, ')
           ..write('matchValue: $matchValue, ')
-          ..write('priority: $priority, ')
-          ..write('confidence: $confidence, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('confidence: $confidence')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    brandId,
-    firmwareId,
-    matchType,
-    matchValue,
-    priority,
-    confidence,
-    createdAt,
-    updatedAt,
-  );
+  int get hashCode =>
+      Object.hash(id, brandId, firmwareId, matchType, matchValue, confidence);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5346,10 +4523,7 @@ class Fingerprint extends DataClass implements Insertable<Fingerprint> {
           other.firmwareId == this.firmwareId &&
           other.matchType == this.matchType &&
           other.matchValue == this.matchValue &&
-          other.priority == this.priority &&
-          other.confidence == this.confidence &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.confidence == this.confidence);
 }
 
 class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
@@ -5358,20 +4532,14 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
   final Value<int?> firmwareId;
   final Value<String> matchType;
   final Value<String> matchValue;
-  final Value<int> priority;
   final Value<int> confidence;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
   const FingerprintsCompanion({
     this.id = const Value.absent(),
     this.brandId = const Value.absent(),
     this.firmwareId = const Value.absent(),
     this.matchType = const Value.absent(),
     this.matchValue = const Value.absent(),
-    this.priority = const Value.absent(),
     this.confidence = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   });
   FingerprintsCompanion.insert({
     this.id = const Value.absent(),
@@ -5379,10 +4547,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
     this.firmwareId = const Value.absent(),
     required String matchType,
     required String matchValue,
-    this.priority = const Value.absent(),
     this.confidence = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
   }) : matchType = Value(matchType),
        matchValue = Value(matchValue);
   static Insertable<Fingerprint> custom({
@@ -5391,10 +4556,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
     Expression<int>? firmwareId,
     Expression<String>? matchType,
     Expression<String>? matchValue,
-    Expression<int>? priority,
     Expression<int>? confidence,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5402,10 +4564,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
       if (firmwareId != null) 'firmware_id': firmwareId,
       if (matchType != null) 'match_type': matchType,
       if (matchValue != null) 'match_value': matchValue,
-      if (priority != null) 'priority': priority,
       if (confidence != null) 'confidence': confidence,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -5415,10 +4574,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
     Value<int?>? firmwareId,
     Value<String>? matchType,
     Value<String>? matchValue,
-    Value<int>? priority,
     Value<int>? confidence,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
   }) {
     return FingerprintsCompanion(
       id: id ?? this.id,
@@ -5426,10 +4582,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
       firmwareId: firmwareId ?? this.firmwareId,
       matchType: matchType ?? this.matchType,
       matchValue: matchValue ?? this.matchValue,
-      priority: priority ?? this.priority,
       confidence: confidence ?? this.confidence,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -5451,17 +4604,8 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
     if (matchValue.present) {
       map['match_value'] = Variable<String>(matchValue.value);
     }
-    if (priority.present) {
-      map['priority'] = Variable<int>(priority.value);
-    }
     if (confidence.present) {
       map['confidence'] = Variable<int>(confidence.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     return map;
   }
@@ -5474,10 +4618,7 @@ class FingerprintsCompanion extends UpdateCompanion<Fingerprint> {
           ..write('firmwareId: $firmwareId, ')
           ..write('matchType: $matchType, ')
           ..write('matchValue: $matchValue, ')
-          ..write('priority: $priority, ')
-          ..write('confidence: $confidence, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('confidence: $confidence')
           ..write(')'))
         .toString();
   }
@@ -6485,10 +5626,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $FingerprintsTable fingerprints = $FingerprintsTable(this);
   late final $VersionRulesTable versionRules = $VersionRulesTable(this);
   late final $UserDevicesTable userDevices = $UserDevicesTable(this);
-  late final Index idxFirmwaresVersionSort = Index(
-    'idx_firmwares_version_sort',
-    'CREATE INDEX idx_firmwares_version_sort ON firmwares (version_sort)',
-  );
   late final Index idxEndpointsApiProfile = Index(
     'idx_endpoints_api_profile',
     'CREATE INDEX idx_endpoints_api_profile ON endpoints (api_profile_id)',
@@ -6531,7 +5668,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     fingerprints,
     versionRules,
     userDevices,
-    idxFirmwaresVersionSort,
     idxEndpointsApiProfile,
     idxFingerprintsBrand,
     idxFingerprintsFirmware,
@@ -7923,22 +7059,14 @@ typedef $$DriversTableCreateCompanionBuilder =
       Value<int> id,
       required String name,
       required String driverClass,
-      Value<String?> language,
-      Value<String?> version,
       Value<String?> notes,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
     });
 typedef $$DriversTableUpdateCompanionBuilder =
     DriversCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<String> driverClass,
-      Value<String?> language,
-      Value<String?> version,
       Value<String?> notes,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
     });
 
 final class $$DriversTableReferences
@@ -8006,28 +7134,8 @@ class $$DriversTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get language => $composableBuilder(
-    column: $table.language,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get version => $composableBuilder(
-    column: $table.version,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8106,28 +7214,8 @@ class $$DriversTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get language => $composableBuilder(
-    column: $table.language,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get version => $composableBuilder(
-    column: $table.version,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -8152,20 +7240,8 @@ class $$DriversTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get language =>
-      $composableBuilder(column: $table.language, builder: (column) => column);
-
-  GeneratedColumn<String> get version =>
-      $composableBuilder(column: $table.version, builder: (column) => column);
-
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   Expression<T> apiProfilesRefs<T extends Object>(
     Expression<T> Function($$ApiProfilesTableAnnotationComposer a) f,
@@ -8249,40 +7325,24 @@ class $$DriversTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> driverClass = const Value.absent(),
-                Value<String?> language = const Value.absent(),
-                Value<String?> version = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => DriversCompanion(
                 id: id,
                 name: name,
                 driverClass: driverClass,
-                language: language,
-                version: version,
                 notes: notes,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
                 required String driverClass,
-                Value<String?> language = const Value.absent(),
-                Value<String?> version = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => DriversCompanion.insert(
                 id: id,
                 name: name,
                 driverClass: driverClass,
-                language: language,
-                version: version,
                 notes: notes,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -9383,16 +8443,6 @@ typedef $$FirmwaresTableCreateCompanionBuilder =
       required int firmwareTypeId,
       required int apiProfileId,
       required String version,
-      Value<int?> versionMajor,
-      Value<int?> versionMinor,
-      Value<int?> versionPatch,
-      Value<int?> versionSort,
-      Value<String?> buildNumber,
-      Value<DateTime?> releaseDate,
-      Value<bool> isBeta,
-      Value<String?> notes,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
     });
 typedef $$FirmwaresTableUpdateCompanionBuilder =
     FirmwaresCompanion Function({
@@ -9401,16 +8451,6 @@ typedef $$FirmwaresTableUpdateCompanionBuilder =
       Value<int> firmwareTypeId,
       Value<int> apiProfileId,
       Value<String> version,
-      Value<int?> versionMajor,
-      Value<int?> versionMinor,
-      Value<int?> versionPatch,
-      Value<int?> versionSort,
-      Value<String?> buildNumber,
-      Value<DateTime?> releaseDate,
-      Value<bool> isBeta,
-      Value<String?> notes,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
     });
 
 final class $$FirmwaresTableReferences
@@ -9529,56 +8569,6 @@ class $$FirmwaresTableFilterComposer
 
   ColumnFilters<String> get version => $composableBuilder(
     column: $table.version,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get versionMajor => $composableBuilder(
-    column: $table.versionMajor,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get versionMinor => $composableBuilder(
-    column: $table.versionMinor,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get versionPatch => $composableBuilder(
-    column: $table.versionPatch,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get versionSort => $composableBuilder(
-    column: $table.versionSort,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get buildNumber => $composableBuilder(
-    column: $table.buildNumber,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
-    column: $table.releaseDate,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isBeta => $composableBuilder(
-    column: $table.isBeta,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9721,56 +8711,6 @@ class $$FirmwaresTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get versionMajor => $composableBuilder(
-    column: $table.versionMajor,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get versionMinor => $composableBuilder(
-    column: $table.versionMinor,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get versionPatch => $composableBuilder(
-    column: $table.versionPatch,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get versionSort => $composableBuilder(
-    column: $table.versionSort,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get buildNumber => $composableBuilder(
-    column: $table.buildNumber,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
-    column: $table.releaseDate,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isBeta => $composableBuilder(
-    column: $table.isBeta,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   $$BrandsTableOrderingComposer get brandId {
     final $$BrandsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -9855,48 +8795,6 @@ class $$FirmwaresTableAnnotationComposer
 
   GeneratedColumn<String> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
-
-  GeneratedColumn<int> get versionMajor => $composableBuilder(
-    column: $table.versionMajor,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get versionMinor => $composableBuilder(
-    column: $table.versionMinor,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get versionPatch => $composableBuilder(
-    column: $table.versionPatch,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get versionSort => $composableBuilder(
-    column: $table.versionSort,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get buildNumber => $composableBuilder(
-    column: $table.buildNumber,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
-    column: $table.releaseDate,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get isBeta =>
-      $composableBuilder(column: $table.isBeta, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$BrandsTableAnnotationComposer get brandId {
     final $$BrandsTableAnnotationComposer composer = $composerBuilder(
@@ -10058,32 +8956,12 @@ class $$FirmwaresTableTableManager
                 Value<int> firmwareTypeId = const Value.absent(),
                 Value<int> apiProfileId = const Value.absent(),
                 Value<String> version = const Value.absent(),
-                Value<int?> versionMajor = const Value.absent(),
-                Value<int?> versionMinor = const Value.absent(),
-                Value<int?> versionPatch = const Value.absent(),
-                Value<int?> versionSort = const Value.absent(),
-                Value<String?> buildNumber = const Value.absent(),
-                Value<DateTime?> releaseDate = const Value.absent(),
-                Value<bool> isBeta = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => FirmwaresCompanion(
                 id: id,
                 brandId: brandId,
                 firmwareTypeId: firmwareTypeId,
                 apiProfileId: apiProfileId,
                 version: version,
-                versionMajor: versionMajor,
-                versionMinor: versionMinor,
-                versionPatch: versionPatch,
-                versionSort: versionSort,
-                buildNumber: buildNumber,
-                releaseDate: releaseDate,
-                isBeta: isBeta,
-                notes: notes,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
@@ -10092,32 +8970,12 @@ class $$FirmwaresTableTableManager
                 required int firmwareTypeId,
                 required int apiProfileId,
                 required String version,
-                Value<int?> versionMajor = const Value.absent(),
-                Value<int?> versionMinor = const Value.absent(),
-                Value<int?> versionPatch = const Value.absent(),
-                Value<int?> versionSort = const Value.absent(),
-                Value<String?> buildNumber = const Value.absent(),
-                Value<DateTime?> releaseDate = const Value.absent(),
-                Value<bool> isBeta = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => FirmwaresCompanion.insert(
                 id: id,
                 brandId: brandId,
                 firmwareTypeId: firmwareTypeId,
                 apiProfileId: apiProfileId,
                 version: version,
-                versionMajor: versionMajor,
-                versionMinor: versionMinor,
-                versionPatch: versionPatch,
-                versionSort: versionSort,
-                buildNumber: buildNumber,
-                releaseDate: releaseDate,
-                isBeta: isBeta,
-                notes: notes,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -11378,10 +10236,7 @@ typedef $$FingerprintsTableCreateCompanionBuilder =
       Value<int?> firmwareId,
       required String matchType,
       required String matchValue,
-      Value<int> priority,
       Value<int> confidence,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
     });
 typedef $$FingerprintsTableUpdateCompanionBuilder =
     FingerprintsCompanion Function({
@@ -11390,10 +10245,7 @@ typedef $$FingerprintsTableUpdateCompanionBuilder =
       Value<int?> firmwareId,
       Value<String> matchType,
       Value<String> matchValue,
-      Value<int> priority,
       Value<int> confidence,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
     });
 
 final class $$FingerprintsTableReferences
@@ -11459,23 +10311,8 @@ class $$FingerprintsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get priority => $composableBuilder(
-    column: $table.priority,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<int> get confidence => $composableBuilder(
     column: $table.confidence,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11550,23 +10387,8 @@ class $$FingerprintsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get priority => $composableBuilder(
-    column: $table.priority,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<int> get confidence => $composableBuilder(
     column: $table.confidence,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -11637,19 +10459,10 @@ class $$FingerprintsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get priority =>
-      $composableBuilder(column: $table.priority, builder: (column) => column);
-
   GeneratedColumn<int> get confidence => $composableBuilder(
     column: $table.confidence,
     builder: (column) => column,
   );
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$BrandsTableAnnotationComposer get brandId {
     final $$BrandsTableAnnotationComposer composer = $composerBuilder(
@@ -11731,20 +10544,14 @@ class $$FingerprintsTableTableManager
                 Value<int?> firmwareId = const Value.absent(),
                 Value<String> matchType = const Value.absent(),
                 Value<String> matchValue = const Value.absent(),
-                Value<int> priority = const Value.absent(),
                 Value<int> confidence = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => FingerprintsCompanion(
                 id: id,
                 brandId: brandId,
                 firmwareId: firmwareId,
                 matchType: matchType,
                 matchValue: matchValue,
-                priority: priority,
                 confidence: confidence,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
@@ -11753,20 +10560,14 @@ class $$FingerprintsTableTableManager
                 Value<int?> firmwareId = const Value.absent(),
                 required String matchType,
                 required String matchValue,
-                Value<int> priority = const Value.absent(),
                 Value<int> confidence = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
               }) => FingerprintsCompanion.insert(
                 id: id,
                 brandId: brandId,
                 firmwareId: firmwareId,
                 matchType: matchType,
                 matchValue: matchValue,
-                priority: priority,
                 confidence: confidence,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(

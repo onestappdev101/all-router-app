@@ -15,7 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kDebugMode) {
-    print('Starting Storage Inspector...');
+    debugPrint('Starting Storage Inspector...');
     inspectorDriver = StorageServerDriver(
       bundleId: 'com.example.onest_all_router_app',
       icon: 'flutter',
@@ -31,15 +31,15 @@ void main() async {
     );
     
     inspectorDriver!.start().then((_) {
-      print('Storage Inspector Started');
+      debugPrint('Storage Inspector Started');
     }).catchError((e) {
-      print('Failed to start Storage Inspector: $e');
+      debugPrint('Failed to start Storage Inspector: $e');
     });
   }
   
   // Run the database debug method in the background without blocking the UI
   AppDatabase.instance.debugDatabase().catchError((e) {
-    print('Database debug failed: $e');
+    debugPrint('Database debug failed: $e');
   });
 
   runApp(

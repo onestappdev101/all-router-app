@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
@@ -17,6 +18,7 @@ import 'tables/version_rules.dart';
 
 import 'daos/brands_dao.dart';
 import 'daos/firmware_types_dao.dart';
+import 'seed_data.dart';
 
 part 'database.g.dart';
 
@@ -48,12 +50,17 @@ class AppDatabase extends _$AppDatabase {
 
   // Bump this and add a migration step below whenever you change a table.
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (Migrator m) async {
           await m.createAll();
+          // Seed default initial data on database creation
+          await batch((b) {
+            b.insertAll(brands, SeedData.initialBrands);
+            b.insertAll(firmwareTypes, SeedData.initialFirmwareTypes);
+          });
         },
         onUpgrade: (Migrator m, int from, int to) async {
           if (from < 2) {
@@ -69,33 +76,66 @@ class AppDatabase extends _$AppDatabase {
           if (from < 6) {
             await m.deleteTable('router_models');
           }
+          if (from < 7) {
+            await m.deleteTable('firmwares');
+            await m.createTable(firmwares);
+          }
+          if (from < 8) {
+            await m.deleteTable('drivers');
+            await m.createTable(drivers);
+          }
+          if (from < 9) {
+            await m.deleteTable('fingerprints');
+            await m.createTable(fingerprints);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
+
+          // Fallback seeding: If database already existed before seeding was introduced
+          final brandsCountExp = brands.id.count();
+          final brandsCount = await (selectOnly(brands)..addColumns([brandsCountExp]))
+              .map((row) => row.read(brandsCountExp))
+              .getSingle();
+          if (brandsCount == 0) {
+            await batch((b) {
+              b.insertAll(brands, SeedData.initialBrands);
+            });
+          }
+
+          final fwTypesCountExp = firmwareTypes.id.count();
+          final fwTypesCount = await (selectOnly(firmwareTypes)..addColumns([fwTypesCountExp]))
+              .map((row) => row.read(fwTypesCountExp))
+              .getSingle();
+          if (fwTypesCount == 0) {
+            await batch((b) {
+              b.insertAll(firmwareTypes, SeedData.initialFirmwareTypes);
+            });
+          }
         },
       );
 
   Future<void> debugDatabase() async {
-    print('=== START DRIFT DATABASE DEBUG ===');
+    debugPrint('=== START DRIFT DATABASE DEBUG ===');
     
     // Ensure the database is opened by executing a simple query
     await customSelect('SELECT 1').get();
 
     final dbList = await customSelect('PRAGMA database_list').get();
-    print('Database List:');
+    debugPrint('Database List:');
     for (final row in dbList) {
-      print(row.data);
+      debugPrint(row.data.toString());
     }
 
     final tables = await customSelect(
       "SELECT name FROM sqlite_master WHERE type='table'",
     ).get();
-    print('Tables:');
+    debugPrint('Tables:');
     for (final table in tables) {
-      print(table.data);
+      debugPrint(table.data.toString());
     }
     
-    print('=== END DRIFT DATABASE DEBUG ===');
+    debugPrint('=== END DRIFT DATABASE DEBUG ===');
   }
 }
 

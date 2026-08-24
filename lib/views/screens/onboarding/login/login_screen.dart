@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:onest_all_router_app/views/widgets/custom_text_field_widget.dart';
 import 'package:onest_all_router_app/viewmodels/login_viewmodel.dart';
+import '../../homescreen/homescreen.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -165,10 +166,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                           style: GoogleFonts.outfit(),
                                         ),
                                         backgroundColor: const Color(0xFF2D29D4),
+                                        duration: const Duration(seconds: 1),
                                       ),
                                     );
-                                    // Here you can navigate further if needed:
-                                    // Navigator.pushReplacement(context, ...);
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                    );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

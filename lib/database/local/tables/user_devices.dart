@@ -1,7 +1,5 @@
 import 'package:drift/drift.dart';
 
-import 'fingerprints.dart';
-import 'firmwares.dart';
 import 'brands.dart';
 
 class UserDevices extends Table {
